@@ -1,0 +1,100 @@
+﻿<html><head>
+
+</head><body>
+<svg id="svgRoot" width="500" height="500" viewBox="-250 -250 500 500" style="border:1px solid silver">
+	<g id="coordinateSystem" stroke="#ccc" stroke-width="1"></g>
+	</svg>
+	</div>
+
+<script>
+const degree = Math.PI / 180 ;
+const radian = 180 / Math.PI ;
+getAngleUnits = ( ) => { return { degree : degree, radian : radian } } ;
+const grid = {
+	// x-grid properties 
+	xangle : 10 * degree ,			// tilt angle
+	xmin : -500 ,							// leftmost grid line
+	xmax : +500 ,							// rightmost grid line
+	xstep : 50 ,								// distance between grid lines
+	// y-grid properties
+	yangle : 30 * degree ,
+	ymin : -500 ,
+	ymax : +500 ,
+	ystep : 50 
+	} ;
+function getGrid( ) { return grid }
+let view = { 
+	offsetX : 0 , 
+	offsetY : 0 , 
+	zoom : 1 ,
+	isPanning : false ,
+	startPoint : { x : 0 , y : 0 }
+	} ;
+function transform( r, s ) {
+	// Transforms oblique coordinates r, s into SVG coordinates
+	const x = r * Math.cos( grid.xangle ) - s * Math.sin( grid.yangle );
+	const y = r * Math.sin( grid.xangle ) + s * Math.cos( grid.yangle );
+	return { x : x , y : y } ;
+	}
+function createLine( p1, p2, attributes = { } ) {
+	const line = document.createElementNS( "http://www.w3.org/2000/svg", "line" );
+	attributes.x1 = p1.x; attributes.y1 = p1.y;
+	attributes.x2 = p2.x; attributes.y2 = p2.y;
+	for ( const [key, value] of Object.entries( attributes )) line.setAttribute( key, value );
+	return line ;
+	}
+function drawGrid() {
+	coordinateSystem.innerHTML = "" ;
+	// Vertical lines for the x grid
+	for ( let i = grid.xmin ; i <= grid.xmax ; i += grid.xstep ) {
+		const p1 = transform( i, grid.ymin );
+		const p2 = transform( i, grid.ymax );
+		let attributes = i === 0 ? { id: "xAxis", "stroke-width":  2, stroke: "green" } : undefined ;
+		const line = createLine( p1, p2, attributes );
+		coordinateSystem.appendChild( line );
+		}
+	// Horizontal lines for the y grid
+	for ( let i = grid.ymin ; i <= grid.ymax ; i += grid.ystep ) {
+		const p1 = transform( grid.xmin, i );
+		const p2 = transform( grid.xmax, i );
+		let attributes = i === 0 ? { id: "yAxis", "stroke-width":  2, stroke: "red" } : undefined ;
+		const line = createLine( p1, p2, attributes );
+		coordinateSystem.appendChild( line );
+		}
+	}
+function updateView() {
+	// Update the ViewBox based on pan and zoom
+	const width = svgRoot.width.baseVal.value * view.zoom;
+	const height = svgRoot.height.baseVal.value * view.zoom;
+	const minX = view.offsetX - width / 2;
+	const minY = view.offsetY - height / 2;
+	svgRoot.setAttribute( "viewBox", `${minX} ${minY} ${width} ${height}` );
+	}
+svgRoot.addEventListener("mousedown", e => {
+	// Start panning
+	view.isPanning = true ;
+	view.pannigStart = { x : e.clientX , y : e.clientY } ;
+	} ) ;
+window.addEventListener( "mousemove" , e => {
+	// Handle panning
+	if ( ! view.isPanning ) return;
+	const dx = (view.pannigStart.x - e.clientX) * view.zoom ;
+	const dy = (view.pannigStart.y - e.clientY) * view.zoom ;
+	view.offsetX += dx ;
+	view.offsetY += dy ;
+	view.pannigStart = { x : e.clientX, y : e.clientY } ;
+	updateView( );
+	} ) ;
+window.addEventListener( "mouseup", ( ) => view.isPanning = false );  // End panning
+svgRoot.addEventListener( "wheel", e => {
+	// Zoom
+	e.preventDefault( );
+	const zoomFactor = e.deltaY > 0 ? 1.1 : 0.9 ;
+	view.zoom *= zoomFactor ;
+	updateView( );
+	} , { passive : false } ) ;
+// Initial display update
+drawGrid( );
+updateView( );
+</script>
+</body></html>

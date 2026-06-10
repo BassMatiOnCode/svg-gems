@@ -1,0 +1,14 @@
+@font-face {
+	font-family : "Encode Sans Condensed" ;
+	src : url("/inc/fonts/EncodeSansCondensed-Regular.ttf") ;
+	}
+body {
+	line-height : 1.5 ;
+	font-family : "palatino linotype" , "times new roman" , serif ;
+	}
+pre {
+	font-family : "Encode Sans Condensed" ;
+	font-size : 13px ;
+	font-stretch : 120% ;
+	letter-spacing : 0.1em ;
+	}

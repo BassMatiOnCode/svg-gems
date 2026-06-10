@@ -1,0 +1,256 @@
+﻿<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" sizes="all" />
+<title>Study 8: Intersection of lines with Cramer's rule</title>
+<meta name="description" content="This study demonstrates how to calculate the coordinates of the intersection of two line segments with Cramer's rule." />
+
+</head><body>
+
+<svg id="svgRoot" width="500" height="500" viewBox="-250 -250 500 500" style="border:1px solid silver">
+<g id="coordinateSystem">
+	<g id="gridLinesX" stroke="#ddd">
+		<g id="axisX" stroke-width="2" stroke="red"></g>
+		</g>
+	<g id="gridLinesY" stroke="#ddd">
+		<g id="axisY" stroke-width="2" stroke="green"></g>
+		</g>
+	<g id="annotations" paint-order="stroke fill" stroke="white" stroke-width="8" text-anchor="middle" dominant-baseline="central">
+		<g id="tickmarksX" offsetY="-18"></g>
+		<g id="tickmarksY" offsetX="+18"></g>
+		</g>
+	</g>
+</svg>
+
+<script>
+const svgNamespace = "http://www.w3.org/2000/svg" ;
+const degree = Math.PI / 180 ;
+const grid = {
+	x : {											// vertical x-axis grid lines 
+		eta : 20 * degree ,				// x-axis tilt angle
+		min : -500 ,							// leftmost smallest x-coordinate
+		max : +500 ,						// rightmost largest x-coordinate
+		step : 50 ,							// distance between x-axis tickmarks
+		} ,
+	y : {											// horizontal y-axis grid lines
+		theta : -20 * degree ,			// y-axis tilt angle
+		min : -500 ,							// topmost smallest y-coordinate
+		max : +500 ,						// bottommost largest y-coordinate
+		step : 50								// distance between y-axis tickmarks
+		}
+	} ;
+function getGrid( ) { return grid }
+let view = {									// Controls zoom and pan of the SVG.viewBox
+	offsetX : 0 , 
+	offsetY : 0 , 
+	zoom : 1 ,
+	isPanning : false ,
+	startPoint : { x : 0 , y : 0 }
+	} ;
+function setElementAttributes( e, attributes = { } ) {
+	for ( const [ key, value ] of Object.entries( attributes )) {
+		if ( typeof value === "boolean" ) e.toggleAttribute( key, value ) ;
+		else e.setAttribute( key, value );
+		}
+	return e ;
+	}
+function createCircle( points = [ ] , attributes = { } ) {
+	const defaultAttributes = { fill : "none" , stroke : "black" , r : 25 };
+	const o = document.createElementNS( svgNamespace, "circle" );
+	const attribs = { ...defaultAttributes , ...attributes };
+	if ( +points[ 0 ] ) attribs.cx = points[ 0 ] ;
+	if ( +points[ 1 ] ) attribs.cy = points[ 1 ] ;
+	setElementAttributes( o , attribs );
+	return o ;
+	}
+function createDot( points, attributes = { } ) {
+	const defaultAttributes = { fill : "black" , stroke : "none" , r : 4 };
+	const a = { ...defaultAttributes, ...attributes };
+	return createCircle( points , a );
+	}
+class Line {
+	static defaultAttributes = { } ;
+	constructor ( ...args ) {
+		// Parameters
+		//		points { numberArray | DOMRectReadOnly | object } : The coordinates of the line end points.
+		//			numberArray { [ number (0|2|4) ] } : Coordinate values x1, y1, x2, y2.
+		//		attributes { object } : Instance attributes
+		//		svgElement { SVGLineElement } : SVG element to be referenced in this instance.
+		//		- - -
+		// Get reference to an existing line element or create one
+		this.svgElement = args[ 0 ] instanceof SVGLineElement ? args.shift( ) : document.createElementNS( svgNamespace, "line" ) ;
+		// Get the coordinates from a variety of types
+		const points = args[ 0 ] instanceof DOMRectReadOnly ? [ args[ 0 ].left , args[ 0 ].top , args[ 0 ].width , args.shift( ).height ] 
+			: args[ 0 ] instanceof SVGLineElement ? [ args[ 0 ].x1 , args[ 0 ].y1 , args[ 0 ].x2 , args.shift( ).y2 ]
+			: args[ 0 ] instanceof SVGRectElement ? [ args[ 0 ].x , args[ 0 ].y , args[ 0 ].x + args[ 0 ].width , args[ 0 ].y + args.shift( ).height ]
+			: args.shift( ) ;  // array
+		// Inject coordinate default values.
+		if ( points.length === 0 ) { points.unshift( 0 ) ; points.unshift( 0 ) }
+		if ( points.length === 2 ) { points.unshift( 0 ) ; points.unshift( 0 ) }
+		// Prepare element attributes
+		const a = { ...Line.defaultAttributes, ...(args[ 0 ]?.constructor.name === "Array" ? args.shift( ) : { } ) } ;
+		// Inject coordinates
+		if ( +points[ 0 ] ) a.x1 = points[ 0 ] ; 
+		if ( +points[ 1 ] ) a.y1 = points[ 1 ] ;
+		if ( +points[ 2 ] ) a.x2 = points[ 2 ] ; 
+		if ( +points[ 3 ] ) a.y2 = points[ 3 ] ;
+		// Save the reference to an existing SVGLineElement or create a new one, set element attributes and return the element reference.
+		return ( this.svgElement = args[ 0 ] instanceof SVGLineElement ? args.shift( ) : document.createElementNS( svgNamespace, "line" )).setElementAttributes( o, attributes );
+		}
+	}
+function createRectangle ( points = [ 100 , 50 ] , attributes = { } ) {
+	// points { [ number (0|2|4) ] | DOMRectReadOnly } : Position and size (x, y, w, h).
+	// attributes { object } : Element attributes.
+	const defaultAttributes = { fill : "none" , stroke : "black" } ;
+	const a = { ...defaultAttributes , ...attributes } ;
+	if ( points instanceof DOMRectReadOnly ) points = [ points.left , points.top , points.width , points.height ] ;
+	if ( points.length === 2 ) { points.unshift( 0 ) ; points.unshift( 0 ) }
+	if ( +points[ 0 ] ) attributes.x = points[ 0 ] ;
+	if ( +points[ 1 ] ) attributes.y = points[ 1 ] ;
+	if ( +points[ 2 ] ) attributes.width = points[ 2 ] ;
+	if ( +points[ 3 ] ) attributes.x = points[ 3 ] ;
+	return document.createElementNS( svgNamespace, "rect" ).setElementAttributes( o, attributes );
+	}
+class CoordinateSystemAxis {
+		system = undefined ;		// points to the parent coordinate system object
+		defaultOptions = { axisoffset : 0 , labeloffset : 0 , labelstep : 1 , linecolor : "silver" , linewidth : 1 , axiscolor : black , axiswidth : 2 , labelcolor : "black"  } 
+	constructor ( name, angle, refaxis, stepsize, options = { }  ) {
+		// Stores the axis configuration values in members variables.
+		// name { string } : Something like x, y, month, or revenue.
+		// angle { number } : Tilt or rotation angle from horizontal. Range: [ -360 , +360 ].
+		// refaxis { string | null } : Name of the related axis that determines the angle of grid lines.
+		// stepsize { number ( positive ) } : Distance between tickmarks
+		// options { object } : Additional parameters
+		//    axisoffset { number } : distance from (0,0), defines where the axis is drawn
+		//    labeloffset { number } : The label value for the zero line 
+		//    labelstep { number } : The difference between two tickmark labels
+		this.name = name ;
+		this.angle = angle ;
+		this.refaxis = refaxis ;
+		this.stepsize = stepsize ;
+		// Store options as members
+		for ( const [ key, value ] of Object.entries( { ...CoordinateSystemAxis.defaultOptions , ...options } ) ) this[ key ] = value ;
+		}
+	draw ( ) {
+		// Creates the axis, axis label, end arrow, grid lines and tickmark labels
+		const r = this.system.svgElement.closest( "svg" ).getAttribute( "viewBox" ).baseVal ;
+		const left = r.x , top = r.y , right = left + r.width , bottom = top + r.height ;
+//		const [ min, max ] = this.angle >= -45 && this.angle < 45 ? [ left, 
+
+		const min = Math.ceil( r.x / this.stepsize ) = this.axisoffset ;
+		const max = r.x + r.width ;
+
+		}
+	}
+class CoordinateSystem {
+	axes = { } ;
+	constructor ( xmin, xmax, xstep, xangle, ymin, ymax, yangle ) {
+		}
+	addAxis( axis ) {
+		this.axes[ `${ axis.name }` ] = axis ;
+		axis.system = this ;
+		}
+	}
+function createText( points = [ ] , text = "" , attributes = { } ) {
+	const o = document.createElementNS( svgNamespace, "text" );
+	o.textContent = text ;
+	if ( +points[ 0 ] ) attributes.x = points[ 0 ] ;
+	if ( +points[ 1 ] ) attributes.y = points[ 1 ] ;
+	setElementAttributes( o , attributes );
+	return o ;
+	}
+function setGridMatrix( ) {
+	// Setup/update  tranformation matrix
+	const a = Math.cos( grid.x.eta );
+	const b = Math.sin( grid.x.eta );
+	const c = -Math.sin( grid.theta );
+	const d = Math.cos( grid.theta );
+	const e = 0 ;
+	const f = 0 ;
+	coordinateSystem.setAttribute( "transform" , `matrix( ${ a }, ${ b }, ${ c }, ${ d }, ${ e }, ${ f } )` );
+	}
+function updateGridMatrix( ) {
+	setGridMatrix( );
+	compensateDistortion( );
+	}
+function compensateDistortion ( ) {
+	// Updates the transform matrix with compensation matrix coefficients
+	const k = Math.sin( 90 * degree - grid.x.eta + grid.theta );
+	const cs = [
+		Math.cos( grid.theta )/ k ,
+		-Math.sin( grid.x.eta ) / k , 
+		Math.sin( grid.theta ) / k ,
+		Math.cos( grid.x.eta ) / k
+		] ;
+	// Loop through the elements that need compensation
+	for ( const e of obliqueCoordinateSystem.querySelectorAll( "[ compensateDistortion ]" )) {
+		// Update the transform matrix
+		const matrix = e.transform.baseVal[0].matrix;
+		matrix.a = cs[ 0 ];
+		matrix.b = cs[ 1 ];
+		matrix.c = cs[ 2 ];
+		matrix.d = cs[ 3 ];
+		}
+	}
+function drawGrid ( ) {
+	setGridMatrix( );
+	const offsetY = tickmarksX.getAttribute( "offsety" );
+	const offsetX = tickmarksY.getAttribute( "offsetx" );
+	// X grid lines parallel to the Y axis
+	for ( let i = grid.x.min ; i <= grid.x.max ; i += grid.x.step ) {
+		const points = [ i, grid.y.min, i, grid.y.max ] ;
+		const line = createLine( points );
+		( i === 0 ? axisX : gridLinesX ).appendChild( line );
+		// tickmarks x
+		points[ 1 ] = offsetY ;
+		const text = createText( [0, 0] , ( i / grid.x.step ).toFixed( 0 ), { compensateDistortion : true , transform: `translate(${ points[ 0 ] },${ points[ 1 ] })` } ) ;
+		tickmarksX.appendChild( text );
+		}
+	// Y grid lines parallel to the X axis
+	for ( let i = grid.y.min ; i <= grid.y.max ; i += grid.y.step ) {
+		const points = [ grid.x.min, i, grid.x.max, i ] ;
+		const line = createLine( points );
+		( i === 0 ? axisY : gridLinesY ).appendChild( line );
+		// tickmarks y
+		points[ 0 ] = offsetX ;
+		const text = createText( [0, 0] , ( i / grid.y.step ).toFixed( 0 ), { compensateDistortion : true , transform: `translate(${ points[ 0 ] },${ points[ 1 ] })` } ) ;
+		tickmarksY.appendChild( text );
+		}
+	compensateDistortion( );
+	}
+function updateView() {
+	// Update the ViewBox based on pan and zoom
+	const width = svgRoot.width.baseVal.value * view.zoom;
+	const height = svgRoot.height.baseVal.value * view.zoom;
+	const minX = view.offsetX - width / 2;
+	const minY = view.offsetY - height / 2;
+	svgRoot.setAttribute( "viewBox", `${minX} ${minY} ${width} ${height}` );
+	}
+svgRoot.addEventListener("mousedown", e => {
+	// Start panning
+	view.isPanning = true ;
+	view.pannigStart = { x : e.clientX , y : e.clientY } ;
+	} ) ;
+window.addEventListener( "mousemove" , e => {
+	// Handle panning
+	if ( ! view.isPanning ) return;
+	const dx = (view.pannigStart.x - e.clientX) * view.zoom ;
+	const dy = (view.pannigStart.y - e.clientY) * view.zoom ;
+	view.offsetX += dx ;
+	view.offsetY += dy ;
+	view.pannigStart = { x : e.clientX, y : e.clientY } ;
+	updateView( );
+	} ) ;
+window.addEventListener( "mouseup", ( ) => view.isPanning = false );  // End panning
+svgRoot.addEventListener( "wheel", e => {
+	// Zoom
+	e.preventDefault( );
+	const zoomFactor = e.deltaY > 0 ? 1.1 : 0.9 ;
+	view.zoom *= zoomFactor ;
+	updateView( );
+	} , { passive : false } ) ;
+// Initial display update
+drawGrid( );
+updateView( );
+</script>
+</body></html>

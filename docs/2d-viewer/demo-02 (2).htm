@@ -1,0 +1,108 @@
+﻿<html><head>
+
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" sizes="all" />
+
+</head><body>
+
+<div id="container" style="width:100% ; height:500px ; background:#fdfdfd ; border:1px solid #ccc ; cursor: grab">
+<svg id="canvas" width="100%" height="100%" viewBox="-400 -400 800 800">
+	<g id="grid-lines" stroke="#e0e0e0" stroke-width="1"></g>
+	<g id="axes" stroke="#333" stroke-width="2">
+		</g>
+	</svg>
+	</div>
+
+<script>
+const canvas = document.getElementById( "canvas" );
+const gridGroup = document.getElementById( "grid-lines" );
+const degToRad = ( deg ) => deg * Math.PI / 180 ;
+const theta = degToRad( 5 );  // rotates the r axis
+const phi = degToRad( -20 );  // rotates the s axis
+
+let view = { x : 0, y : 0, zoom : 1 };
+let isPanning = false;
+let startPoint = { x: 0, y: 0 };
+
+function transform ( r, s ) {
+	// Shearing math
+	const x = r * Math.cos( theta ) - s * Math.sin( phi );
+	const y = r * Math.sin( theta ) + s * Math.cos( phi );
+	return { x : x, y : -y };
+	}
+
+function drawGrid ( ) {
+	gridGroup.innerHTML = "";
+	const step = 50 ;
+	const limit = 500 ;
+	for ( let i = -limit ; i <= limit ; i += step ) {
+		// Y grid lines
+		const p1y = transform( i, -limit );
+		const p2y = transform( i, limit );
+		line( p1y, p2y, "#e0e0e0", gridGroup );
+		// X grid lines
+		const p1x = transform( -limit, i );
+		const p2x = transform( limit, i );
+		line( p1x, p2x, "#e0e0e0", gridGroup );
+		}
+	// X axis
+	const startX = transform( -limit, 0 );
+	const endX = transform( limit, 0 );
+	line( startX, endX, "red", gridGroup, 2 );
+	// Y axis
+	const startY = transform( 0, -limit );
+	const endY = transform( 0, limit );
+	line( startY, endY, "green", gridGroup, 2 );
+	}
+
+function line ( p1, p2, color, parent, width = 1 ) {
+	const line = document.createElementNS( "http://www.w3.org/2000/svg", "line" );
+	line.setAttribute( "x1", p1.x ); line.setAttribute( "y1", p1.y );
+	line.setAttribute( "x2", p2.x ); line.setAttribute( "y2", p2.y );
+	line.setAttribute( "stroke", color );
+	line.setAttribute( "stroke-width", width );
+	parent.appendChild( line );
+	}
+
+drawGrid( );
+
+function updateView ( ) {
+	const width = 800 * view.zoom;
+	const height = 800 * view.zoom;
+	const minX = view.x - width / 2;
+	const minY = view.y - height / 2;
+	canvas.setAttribute( "viewBox", `${minX} ${minY} ${width} ${height}` );
+	}
+
+// --- Interaction --- //
+
+canvas.addEventListener( "mousedown", e => {
+	isPanning = true ;
+	startPoint = { x : e.clientX , y : e.clientY } ;
+	} ) ;
+
+window.addEventListener( "mousemove" , e => {
+	if ( ! isPanning ) return;
+	// Calculate movement adjusted for zoom level
+	const slipFactor = 1.7 ;
+	const dx = (startPoint.x - e.clientX) * view.zoom * slipFactor ;
+	const dy = (startPoint.y - e.clientY) * view.zoom * slipFactor ;
+	view.x += dx ;
+	view.y += dy ;
+	startPoint = { x : e.clientX, y : e.clientY } ;
+	updateView( );
+	} ) ;
+
+window.addEventListener( "mouseup", ( ) => isPanning = false );
+
+canvas.addEventListener( "wheel", e => {
+	e.preventDefault( );
+	view.zoom *= e.deltaY > 0 ? 1.1 : 0.9 ;
+	updateView( );
+	} ) ;
+
+// --- Initial updates --- //
+
+drawGrid( );
+updateView( );
+</script>
+</body></html>

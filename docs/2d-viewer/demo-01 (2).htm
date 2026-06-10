@@ -1,0 +1,82 @@
+<html><head>
+
+</head><body>
+<div id="container" style="width:500px ; height:500px ; background:#fdfdfd ; border:1px solid #ccc ; cursor: grab">
+<svg id="canvas" width="100%" height="100%" viewBox="-400 -400 800 800">
+	<g id="grid-lines" stroke="#e0e0e0" stroke-width="1"></g>
+	<g id="axes" stroke="#333" stroke-width="2">
+		<line id="axis-x" x1="-10000" y1="0" x2="10000" y2="0" />
+		<line id="axis-y" x1="0" y1="-10000" x2="0" y2="10000" />
+		</g>
+	</svg>
+	</div>
+
+<script>
+const canvas = document.getElementById( "canvas" );
+const gridGroup = document.getElementById( "grid-lines" );
+
+let view = { x : 0, y : 0, zoom : 1 };
+let isPanning = false;
+let startPoint = { x: 0, y: 0 };
+
+function drawGrid() {
+	gridGroup.innerHTML = "";
+	const step = 50;
+	const limit = 2000; // Draw grid far beyond current view
+
+	for ( let i = -limit; i <= limit; i += step ) {
+		// Vertical lines
+		const vLine = document.createElementNS( "http://www.w3.org/2000/svg", "line" );
+		vLine.setAttribute("x1", i); vLine.setAttribute("y1", -limit);
+		vLine.setAttribute("x2", i); vLine.setAttribute("y2", limit);
+		gridGroup.appendChild(vLine);
+
+		// Horizontal lines
+		const hLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
+		hLine.setAttribute("x1", -limit); hLine.setAttribute("y1", i);
+		hLine.setAttribute("x2", limit); hLine.setAttribute("y2", i);
+		gridGroup.appendChild(hLine);
+		}
+	}
+
+// Update the ViewBox based on pan and zoom
+function updateView() {
+	const width = 800 * view.zoom;
+	const height = 800 * view.zoom;
+	const minX = view.x - width / 2;
+	const minY = view.y - height / 2;
+	canvas.setAttribute( "viewBox", `${minX} ${minY} ${width} ${height}` );
+	}
+
+// --- Interaction ---
+
+canvas.addEventListener("mousedown", e => {
+	isPanning = true ;
+	startPoint = { x : e.clientX , y : e.clientY } ;
+	} ) ;
+
+window.addEventListener( "mousemove" , e => {
+	if ( ! isPanning ) return;
+	
+	// Calculate movement adjusted for zoom level
+	const dx = (startPoint.x - e.clientX) * view.zoom * 1.6;  // The factor compensates slip...
+	const dy = (startPoint.y - e.clientY) * view.zoom * 1.6;
+	view.x += dx ;
+	view.y += dy ;
+	startPoint = { x : e.clientX, y : e.clientY } ;
+	updateView( );
+	} ) ;
+
+window.addEventListener( "mouseup", ( ) => isPanning = false );
+
+canvas.addEventListener( "wheel", e => {
+	e.preventDefault( );
+	const zoomFactor = e.deltaY > 0 ? 1.1 : 0.9 ;
+	view.zoom *= zoomFactor ;
+	updateView( );
+	} ) ;
+
+drawGrid( );
+updateView( );
+</script>
+</body></html>

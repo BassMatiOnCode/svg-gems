@@ -1,0 +1,79 @@
+<!DOCTYPE html />
+<html lang="en"><head>
+<meta charset="utf-8">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" sizes="all" />
+<title>Figure 9: Axis Length Calculation</title>
+</head><body>
+
+<svg id="svgRoot" width="360" height="380" viewBox="-80 -200 360 380" style="border:1px solid silver" >
+<defs>
+	<style type="text/css">
+		g#points circle { r : 4px }
+		</style>
+	</defs>
+<g id="cartesianSystem" stroke="#ddd" stroke-width="2" fill="none">
+	<rect x="-150" y="-150" width="300" height="300" />
+	<line x1="-200" x2="250" /><!--x-axis-->
+	<line y1="-180" y2="170" /><!--y-axis-->
+	<line x2="180" y2="-180" />
+	</g>
+<g id="obliqueSystem" stroke="#fbb" stroke-width="2" >
+	<line x1="-80" x2="290" /><!-- x-axis -->
+	<line y1="-190" y2="180" /><!-- y-axis -->
+	<line x1="251" x2="251" y1="-290" y2="50" /><!-- y-parallel-->
+	</g>
+<g id="points" stroke="none" fill="#888">
+	<circle  /><!-- origin -->
+	<circle cx="150" />
+	<circle cx="150" cy="-150" />
+	<circle cx="236" cy="86" />
+	</g>
+<g id="annotations" font-size="18" stroke="white" stroke-width="6" paint-order="stroke fill" text-anchor="middle" dominant-baseline="central" >
+	<text x="60" y="8">&eta;</text>
+	<text x="12" y="70">&minus;&theta;</text>
+	<text x="162" y="-80">&minus;&theta;</text>
+	<text x="30" y="-15">&alpha;</text>
+	<text x="135" y="-120">&beta;</text>
+	<text x="210" y="60">&delta;</text>
+	<text x="40" y="40">&delta;</text>
+	<text x="165" y="0">C</text>
+	<text x="-15" y="15">A</text>
+	<text x="155" y="-170">B</text>
+	<text x="260" y="110">D</text>
+	<text x="150" y="-55">a</text>
+	<text x="85" y="0">b</text>
+	<text x="75" y="-75">c</text>
+	<text x="120" y="43">e</text>
+	<text x="190" y="-41">f</text>
+	
+	</g>
+</svg>
+
+<script>
+const svgNamespace = "http://www.w3.org/2000/svg" ;
+const degree = Math.PI / 180 ;
+const eta = 20 * degree ;
+const theta = -20 * degree ;
+const a = Math.cos( eta ) , b = Math.sin( eta ) , c = -Math.sin( theta ) , d = Math.cos( theta ) , e = 0 , f = 0 ;
+obliqueSystem.setAttribute( "transform" , `matrix( ${ a }, ${ b }, ${ c }, ${ d }, ${ e }, ${ f } )` );
+const matrix = obliqueSystem.transform.baseVal[ 0 ].matrix;
+const imatrix = { 
+	k : Math.cos( theta - eta ) ,
+	a : matrix.d / this.k ,
+	b : matrix.b / this.k ,
+	c : -matrix.c / this.k ,
+	d : matrix.a / this.k 
+	} ;
+function inverse( x, y ) { return {
+	x : imatrix.a * x + imatrix.c * y ,
+	y : imatrix.b * x + imatrix.d * y
+	}	}
+;
+console.log(inverse(150,-150));
+console.log(inverse(150,150));
+console.log(inverse(-150,150));
+console.log(inverse(-150,-150));
+
+</script>
+
+</body></html>

@@ -1,0 +1,75 @@
+<html><head>
+
+</head><body>
+
+<svg id="svgRoot" width="300" height="300" viewBox="-10 -10 70 70" style="border:1px solid silver" >
+<style>
+	g#points circle { r : 1.0px }
+	</style>
+<g id="cartesianSystem">
+	<g name="gridlines" stroke="#ddd" stroke-width="1" >
+		<line x1="-75" x2="100" y1="50" y2="50" />
+		<line y1="-75" y2="100" x1="50" x2="50" />
+	</g>
+	<g name="axes" stroke="#ddd" stroke-width="1">
+		<line id="xaxis" x1="-75" x2="100" />
+		<line id="yaxis" y1="-75" y2="100" />
+		</g>
+	<circle id="unitCircle" r="50" fill="none" stroke="#888" stroke-width="0.6" />
+	</g>
+<g id="obliqueSystem">
+	<g name="gridlines" stroke="#fbb" stroke-width="1" >
+		<line id="xaxis" x1="-75" x2="100" y1="50" y2="50" />
+		<line id="xaxis" y1="-75" y2="100" x1="50" x2="50" />
+		</g>
+	<g id="axes" stroke="#fbb" stroke-width="1" fill="none">
+		<line id="xaxis" x1="-75" x2="100" />
+		<line id="yaxis" y1="-75" y2="100" />
+		</g>
+	</g>
+<g id="supplementLines" stroke-width="0.5" stroke="black" >
+	<line id="lineOB" />
+	<line id="lineBC" />
+	<line id="lineOC" />
+	</g>
+<g id="points">
+	<circle id="pointA" cy="50" />
+	<circle id="pointB" cx="45" cy="20" />
+	<circle id="pointC" />
+	<circle id="pointO" />
+	</g>
+<g id="annotations" font-size="7" text-anchor="middle" dominant-baseline="central">
+	<g class="pointLabels" paint-order="stroke fill" stroke="white" stroke-width="2" >
+		<text x="-6" y="-2">O</text>
+		<text x="0" y="55">A</text>
+		<text x="19" y="52">C</text>
+		<text x="-5" y="46" stroke-width="1">B</text>
+		<text x="3" y="17">&phi;</text>
+		</g>
+	</g>
+</svg>
+
+<script type="module">
+const radians = Math.PI / 180 ;
+const theta = 30 * radians ;			// x-axis tilt angle
+const phi = -20 * radians ;			// y-axis tilt angle
+const a = Math.cos( theta );
+const b = Math.sin( theta );
+const c = -Math.sin( phi );
+const d = Math.cos( phi );
+obliqueSystem.setAttribute( "transform" , `matrix( ${ a }, ${ b }, ${ c }, ${ d }, 0, 0 )` );
+pointB.setAttribute( "cy", 50 * Math.cos( phi ));
+pointB.setAttribute( "cx", -50 * Math.sin( phi ));
+pointC.setAttribute( "cy", pointB.getAttribute( "cy" ));
+
+lineOB.setAttribute( "x2", pointB.getAttribute( "cx" ));
+lineOB.setAttribute( "y2", pointB.getAttribute( "cy" ));
+lineOC.setAttribute( "x2", pointC.getAttribute( "cx" ));
+lineOC.setAttribute( "y2", pointC.getAttribute( "cy" ));
+lineBC.setAttribute( "x1", pointB.getAttribute( "cx" ));
+lineBC.setAttribute( "y1", pointB.getAttribute( "cy" ));
+lineBC.setAttribute( "x2", pointC.getAttribute( "cx" ));
+lineBC.setAttribute( "y2", pointC.getAttribute( "cy" ));
+</script>
+
+</body></html>

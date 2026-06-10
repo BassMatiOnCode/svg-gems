@@ -1,0 +1,75 @@
+<html><head>
+<style>
+	g#points circle { r : 4px }
+	</style>
+
+</head><body>
+
+<svg id="svgRoot" width="350" height="200" viewBox="-50 -50 350 200" style="border:1px solid silver" >
+<g id="cartesianSystem" stroke="#ddd" stroke-width="2" >
+	<circle r="250" fill="none" stroke="#888" stroke-width="1" stroke-dasharray="8 8"/>
+	<g name="gridlines" >
+		<line x1="-200" x2="300" /> <!-- x-axis -->
+		<line x1="-200" x2="300" y1="85.5" y2="85.5" />
+		<line y1="-75" y2="300" /> <!-- y-axis -->
+		<line y1="-75" y2="300" x1="235" x2="235" />
+	</g>
+	<g name="axes">
+		</g>
+	</g>
+<g id="obliqueSystem" stroke="#fbb" stroke-width="2" >
+	<g name="gridlines" >
+		<line x1="-200" x2="320" /> <!-- x-axis -->
+		</g>
+	</g>
+<g id="points" stroke="none" fill="#888">
+	<circle />
+	<circle cx="250" />
+	<circle cx="235" />
+	<circle cx="235" cy="85.5" />
+	</g>
+<g id="annotations" font-size="16" text-anchor="middle" dominant-baseline="central" stroke="white" stroke-width="6" fill="#888" paint-order="stroke fill">
+	<text y="-20">O</text>
+	<text x="235" y="105">P</text>
+	<text x="230" y="-20">Q</text>
+	<text x="250" y="-20">X</text>
+	<text x="125" dominant-baseline="middle">a</text>
+	<text x="235" y="42">b</text>
+	<text x="120" y="42">r</text>
+	<text x="60" y="7">&eta;</text>
+	</g>
+</svg>
+
+<script type="module">
+const degree = Math.PI / 180 ;
+const eta = 20 * degree ;		// x-axis tilt angle
+const theta = 30 * degree ;			// y-axis tilt angle
+const a = Math.cos( eta );
+const b = Math.sin( eta );
+const c = -Math.sin( theta );
+const d = Math.cos( theta );
+obliqueSystem.setAttribute( "transform" , `matrix( ${ a }, ${ b }, ${ c }, ${ d }, 0, 0 )` );
+function transform( r, s ) { return { 
+	x : r * a + c * s ,
+	y : r * b + d * s
+	} } ;
+// Move objects from virtual to SVG (normal) space
+for ( const o of document.querySelectorAll( "g.virtual *" )) {
+	switch ( o.tagName ) {
+	case "circle" : {
+		const p = transform( o.getAttribute( "cx" ), o.getAttribute( "cy" ));
+		o.setAttribute( "cx", p.x );
+		o.setAttribute( "cy", p.y );
+		break;
+		}
+	case "text" : {
+		const p = transform( o.getAttribute( "x" ), o.getAttribute( "y" ));
+		o.setAttribute( "x", p.x );
+		o.setAttribute( "y", p.y );
+		}
+		}
+	}
+
+</script>
+
+</body></html>

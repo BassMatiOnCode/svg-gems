@@ -1,0 +1,232 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" sizes="all" />
+<title>Study 9: Axis Range Calculation</title>
+<meta name="description" content="This study demonstrates how to calculate the coordinate for an axis, depending on its quadrant of direction." />
+
+</head><body>
+
+<svg id="svgRoot" width="500" height="500" viewBox="-250 -250 500 500" style="border:1px solid silver">
+<rect x="-100" y="-100" width="200" height="200" fill="none" stroke="silver"  />
+<g id="coordinateSystem">
+	<g id="xGridLines" stroke="#ddd"></g>
+	<g id="yGridLines" stroke="#ddd"></g>
+	<g id="undistorted">
+		<g id="points" fill="#888" stroke="none"></g>
+		<g id="annotations" paint-order="stroke fill" stroke="white" stroke-width="8" text-anchor="middle" dominant-baseline="central">
+			<g id="xAxisLabels" offsetY="-18"></g>
+			<g id="yAxisLables" offsetX="+18"></g>
+			</g>
+		</g>
+	</g>
+</svg>
+
+<script>
+function getAxisAngles( ) {
+	return { eta : grid.eta , theta : grid.theta } ;
+	}
+function setAxisAngles( eta, theta ) {
+	grid.eta = eta ; grid.theta = theta ;
+	const im = grid.matrix.inverse( );
+	grid.B1 = new DOMPoint( svgRoot.viewBox.baseVal.x, svgRoot.viewBox.baseVal.y ).matrixTransform( im );
+	grid.B2 = new DOMPoint( -svgRoot.viewBox.baseVal.x, svgRoot.viewBox.baseVal.y ).matrixTransform( im );
+	const l = new Line( grid.B1, grid.B2 );
+	}
+class ElementBase {
+	removeDefaultAttributes( value, ...args ) {
+		args.forEach( key => { if ( this.svgElement.getAttribute( key ) === value ) this.svgElement.removeAttribute( key ) } ) ;
+		}
+	setAttributes ( attributes ) {
+		for ( const [ key, value ] of Object.entries( attributes ) ) {
+			if ( typeof value === "boolean" ) this.svgElement.toggleAttribute( key, value );
+			else this.svgElement.setAttribute( key, value );
+			}
+		}
+	}
+class Circle extends ElementBase {
+	static defaultAttributes = { stroke : "black", fill : "none", r : 20 };
+	constructor ( point={x:0,y:0}, attributes={}, options={} ) {
+		super( );
+		attributes = { ...Circle.defaultAttributes, ...attributes };
+		attributes.cx = point.x || 0 ;
+		attributes.cy = point.y || 0 ;
+		this.svgElement = options.svgCircleElement || document.createElementNS( svgRoot.namespaceURI, "circle" );
+		this.setAttributes( attributes );
+		this.removeDefaultAttributes( "0", "cx", "cy", "r" );
+		}
+	}
+class Dot extends Circle {
+	static defaultAttributes = { stroke : "none" , fill : "#888" , r : 4 };
+	constructor ( point, attributes={}, options={} ) {
+		super( point, attributes, { ...Dot.defaultAttributes, ...attributes }, options );
+		}
+	}
+class Line extends ElementBase {
+	static defaultAttributes = { } ;
+	constructor ( ...args ) {
+		super( );
+		var x1=0, y1=0, x2=0, y2=0 ;
+		// Four points
+		if ( args[ 0 ] instanceof SVGLineElement ) {
+			x1 = args[ 0 ].x1.baseVal.value ;
+			y1 = args[ 0 ].y1.baseVal.value ; 
+			x2 = args[ 0 ].x2.baseVal.value ;
+			y1 = args.shift( ).y2.baseVal.value ;
+			}
+		else if ( args[ 0 ] instanceof SVGRectElement ) {
+			x1 = args[ 0 ].x.baseVal.value ;
+			y1 = args[ 0 ].y.baseVal.value ; 
+			x2 = x1 + args[ 0 ].width.baseVal.value ;
+			y1 = y1 + args.shift( ).height.baseVal.value ;
+			}
+		else if ( [ "x1", "y1", "x2", "y2" ].every( key => Object.hasOwn( args[ 0 ], key ))) {
+			var { x1, y1, x2, y2 } = args.shift( );
+			}
+		else if ( [ "x", "y", "width", "height" ].every( key => Object.hasOwn( args[ 0 ], key ))) {
+			var { x1, y1, width:x2, height:y2 } = args.shift( );
+			x2 += x1 ;
+			y2 += y1 ;
+			}
+		else if ( args[ 0 ] instanceof Array ) {
+			[ x1, y1, x2, y2 ] = args.shift( );
+			}
+		else {
+			// First pair of values
+			if ( args[ 0 ] instanceof SVGCircleElement ) {
+				x1 = args[ 0 ].cx.baseVale.value ;
+				y1 = args[ 0 ].cy.baseVale.value ;
+				}
+			if ( [ "x", "y" ].every( key => Object.hasOwn( args[ 0 ], key ))) {
+				var { x:x1, y:y1 } = args.shift( );
+				}
+			if ( typeof args[ 0 ] === "number" ) {
+				x1 = args.shift( );
+				y1 = args.shift( );
+				}
+			// Second pair of values
+			if ( args[ 0 ] instanceof SVGCircleElement ) {
+				x2 = args[ 0 ].cx.baseVale.value ;
+				y2 = args[ 0 ].cy.baseVale.value ;
+				}
+			if ( [ "x", "y" ].every( key => Object.hasOwn( args[ 0 ], key ))) {
+				var { x:x2, y:y2 } = args.shift( );
+				}
+			if ( typeof args[ 0 ] === "number" ) {
+				x2 = args.shift( );
+				y2 = args.shift( );
+				}
+			}
+		const attributes = { ...Line.defaultAttributes, ...( args.shift( ) || { } ) };
+		attributes.x1 = x1 ;
+		attributes.y1 = y1 ;
+		attributes.x2 = x2 ;
+		attributes.y2 = y2 ;
+		const options = args.shift( ) || { } ;
+		this.svgElement = options.existingSvgElement || document.createElementNS( svgRoot.namespaceURI, "line" );
+		this.setAttributes( attributes );
+		this.removeDefaultAttributes( "0", "x1", "y1", "x2", "y2" );
+		}
+	}
+class CoordinateSystem {
+	constructor ( eta=0, theta=0, extent=svgRoot.viewBox.baseVal, coordinateSystemElement=coordinateSystem ) {
+		this.eta = eta ;
+		this.theta = theta ;
+		if ( typeof coordinateSystemElement === "string" ) coordinateSystemElement = document.getElementById( coordinateSystemElement ) ;
+		if ( coordinateSystemElement instanceof SVGGElement ) this.cs = coordinateSystemElement ;
+		else { 
+			( this.cs = svgRoot.appendChild( document.createElementNS( svgRoot.namespaceURI, "SVGGElement" ))).id = "coordinateSystem" ;
+			( this.xGridLines = this.cs.appendChild( document.createElementNS( svgRoot.namespaceURI, "SVGGElement" ))).id = "xGridLines" ;
+			( this.yGrigLines = this.cs.appendChild( document.createElementNS( svgRoot.namespaceURI, "SVGGElement" ))).id = "yGridLines" ;
+			( this.undistorted = this.cs.appendChild( document.createElementNS( svgRoot.namespaceURI, "SVGGElement" ))).id = "undistorted" ;
+			( this.annotations = this.undistorted.appendChild( document.createElementNS( svgRoot.namespaceURI, "SVGGElement" ))).id = "annotations" ;
+			this.annotations.setAttribute( "dominant-baseline", "central" );
+			this.annotations.setAttribute( "text-anchor", "middle" );
+			this.annotations.setAttribute( "fill", "black" );
+			this.annotations.setAttribute( "stroke", "white" );
+			this.annotations.setAttribute( "stroke-width", "6" );
+			this.annotations.setAttribute( "paint-order", "stroke fill" );
+			}
+		this.xGridLines = this.cs.querySelector( "#xGridLines" );
+		this.yGridLines = this.cs.querySelector( "#yGridLines" );
+		this.undistorted = this.cs.querySelector( "#undistorted" );
+		this.annotations = this.cs.querySelector( "#annotations" );
+		this.points = this.cs.querySelector( "#points" );
+		this.extent = DOMRect.fromRect( extent );
+		this.cs.setAttribute( "transform" , "matrix(1,0,0,1,0,0)" );
+		this.matrix = this.cs.transform.baseVal[ 0 ].matrix ;
+		this.inverseMatrix = this.matrix.inverse( );
+		this.setAngles( eta, theta );
+		this.createGrid( );
+		}
+	addUndistorted( element, point, container ) {
+		// Add an inverse matrix transform with translation to the point.
+		element = element.svgElement || element ;
+		const im = coordinateSystem.transform.baseVal[ 0 ].matrix.inverse( );
+		element.setAttribute( "transform" , `matrix( ${im.a},${im.b},${im.c},${im.d},${point.x},${point.y} )` );
+		if ( typeof container === "string" ) container = this.undistorted.querySelector( container );
+		return container.appendChild( element );
+		}
+	createGrid( ) {
+		const im = this.matrix.inverse( );
+		let B1, B2, B3, B4;
+		// Create points for visualisation
+		// Temporarily change the default attributes so that the group settings inherits the attributes
+		const attributes = Circle.defaultAttributes ;
+		Circle.defaultAttributes = { r:4 } ;
+		this.addUndistorted( new Circle( ), B1 = new DOMPoint( this.extent.right , this.extent.bottom ).matrixTransform( im ), "#points" );
+		this.addUndistorted( new Circle( ), B2 = new DOMPoint( this.extent.left , this.extent.bottom ).matrixTransform( im ), "#points" );
+		this.addUndistorted( new Circle( ), B3 = new DOMPoint( this.extent.left , this.extent.top ).matrixTransform( im ), "#points" );
+		this.addUndistorted( new Circle( ), B4 = new DOMPoint( this.extent.right , this.extent.top ).matrixTransform( im ), "#points" );
+		window.B1=B1;
+		window.B2=B2;
+		window.B3=B3;
+		window.B4=B4;
+		// Create the x-axis
+		const limits = [
+			[ [ B4,B2 ],[ B4,B2 ],[ B2,B4 ],[ B2,B4 ] ] ,
+			[ [ B3,B1 ],[ B3,B1 ],[ B1,B3 ],[ B1,B3 ] ] ,
+			[ [ B4,B2 ],[ B4,B2 ],[ B2,B4 ],[ B2,B4 ] ] ,
+			[ [ B3,B1 ],[ B3,B1 ],[ B1,B3 ],[ B1,B3 ] ] ,
+			];
+		console.log( this.quadrant( this.eta ), this.quadrant( this.theta + 90 ));
+		let [ ymin,ymax ] = limits[ this.quadrant( this.eta ), this.quadrant( this.theta + 90 ) ];
+		ymin = ymin.y;
+		ymax = ymax.y;
+		console.log( this.quadrant( this.theta + 90 ), this.quadrant( this.eta ));
+		let [ xmin,xmax ] = limits[ this.quadrant( this.theta + 90 ), this.quadrant( this.eta ) ];
+		xmin = xmin.x;
+		xmax = xmax.x;
+		this.addUndistorted( new Circle( ), {x:xmin, y:0}, "#points" );
+		this.addUndistorted( new Circle( ), {x:xmax, y:0}, "#points" );		
+		this.xGridLines.append( new Line( xmin, 0, xmax, 0, { id: "xAxis", stroke: "red" } ).svgElement );
+		this.addUndistorted( new Circle( ), {x:0, y:ymin}, "#points" );
+		this.addUndistorted( new Circle( ), {x:0, y:ymax}, "#points" );		
+		this.yGridLines.append( new Line( 0, ymin, 0, ymax, { id: "yAxis", stroke: "green" } ).svgElement );
+		// Add x-gridlines
+		this.xGridLines.append( new Line( xmin, ymin, xmax, ymin ).svgElement );
+		this.xGridLines.append( new Line( xmin, ymax, xmax, ymax ).svgElement );
+		this.yGridLines.append( new Line( xmin, ymin, xmin, ymax ).svgElement );
+		this.yGridLines.append( new Line( xmax, ymin, xmax, ymax ).svgElement );
+		Circle.defaultAttributes = attributes ;
+		}
+	quadrant ( angle ) {
+		// Converts an angle (in degree) to a quadrant number 0...3
+		const q = (angle / 90) % 4 ;
+		return Math.floor( q < 0 ? q + 4 : q );
+		}
+	setAngles( eta, theta ) {
+		this.eta = eta ; 
+		this.theta = theta ;
+		eta *= Math.PI / 180 ;
+		theta *= Math.PI / 180 ;
+		this.matrix.a = Math.cos( eta );
+		this.matrix.b = Math.sin( eta );
+		this.matrix.c = -Math.sin( theta );
+		this.matrix.d = Math.cos( theta );
+		}
+	}
+const cs = new CoordinateSystem( 20, -100, { x:-100, y:-100, width:200, height:200 } );
+</script>
+</body></html>
+

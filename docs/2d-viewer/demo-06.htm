@@ -1,0 +1,178 @@
+﻿<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" sizes="all" />
+<title>Demo 5: Compensating Distortion</title>
+<meta name="note" content="The tick labels are created in drawGrid() and placed in the tickmarks groups. These groups carry offset attributes that allow the author to define their position relative to the axis." />
+
+</head><body>
+
+<svg id="svgRoot" width="500" height="500" viewBox="-250 -250 500 500" style="border:1px solid silver">
+<g id="obliqueCoordinateSystem">
+	<g id="gridLinesX" stroke="#ddd">
+		<g id="axisX" stroke-width="2" stroke="red"></g>
+		</g>
+	<g id="gridLinesY" stroke="#ddd">
+		<g id="axisY" stroke-width="2" stroke="green"></g>
+		</g>
+	<g id="annotations" paint-order="stroke fill" stroke="white" stroke-width="8" text-anchor="middle" dominant-baseline="central">
+		<g id="tickmarksX" offsetY="-18"></g>
+		<g id="tickmarksY" offsetX="+18"></g>
+		</g>
+	</g>
+</svg>
+
+<script>
+const svgNamespace = "http://www.w3.org/2000/svg" ;
+const degree = Math.PI / 180 ;
+const radian = 180 / Math.PI ;
+getAngleUnits = ( ) => { return { degree : degree, radian : radian } } ;
+const gridConfiguration = {
+	// x-gridConfiguration properties 
+	xangle : 20 * degree ,			// tilt angle
+	xmin : -500 ,							// leftmost gridConfiguration line
+	xmax : +500 ,							// rightmost gridConfiguration line
+	xstep : 50 ,								// distance between gridConfiguration lines
+	// y-gridConfiguration properties
+	yangle : -20 * degree ,
+	ymin : -500 ,
+	ymax : +500 ,
+	ystep : 50 
+	} ;
+function getGridConfiguration( ) { return gridConfiguration }
+let view = { 
+	offsetX : 0 , 
+	offsetY : 0 , 
+	zoom : 1 ,
+	isPanning : false ,
+	startPoint : { x : 0 , y : 0 }
+	} ;
+function transform( points = [ ] ) {
+	const out = [ ] ;
+	// Transforms oblique coordinates r, s into SVG coordinates
+	while ( points.length > 1 ) {
+		const r = points.shift( );
+		const s = points.shift( );
+		out.push( r * Math.cos( gridConfiguration.xangle ) - s * Math.sin( gridConfiguration.yangle ));
+		out.push( r * Math.sin( gridConfiguration.xangle ) + s * Math.cos( gridConfiguration.yangle ));
+		}
+	return out ;
+	}
+function setElementAttributes( e, attributes = { } ) {
+	for ( const [ key, value ] of Object.entries( attributes )) {
+		if ( typeof value === "boolean" ) e.toggleAttribute( key, value ) ;
+		else e.setAttribute( key, value );
+		}
+	}
+function createLine( points = [ ], attributes = { } ) {
+	const line = document.createElementNS( svgNamespace, "line" );
+	attributes.x1 = points[ 0 ]; attributes.y1 = points[ 1 ];
+	attributes.x2 = points[ 2 ]; attributes.y2 = points[ 3 ];
+	setElementAttributes( line, attributes );
+	return line ;
+	}
+function createText( points = [ ], text = "", attributes = { } ) {
+	const o = document.createElementNS( svgNamespace, "text" );
+	o.textContent = text ;
+	if ( points.length > 0 ) { 
+		attributes.x = points[ 0 ] ;
+		attributes.y = points[ 1 ] ;
+		}
+	setElementAttributes( o, attributes );
+	return o ;
+	}
+function setGridMatrix( ) {
+	// Setup/update  tranformation matrix
+	const a = Math.cos( gridConfiguration.xangle );
+	const b = Math.sin( gridConfiguration.xangle );
+	const c = -Math.sin( gridConfiguration.yangle );
+	const d = Math.cos( gridConfiguration.yangle );
+	const e = 0 ;
+	const f = 0 ;
+	obliqueCoordinateSystem.setAttribute( "transform" , `matrix( ${ a }, ${ b }, ${ c }, ${ d }, ${ e }, ${ f } )` );
+	}
+function updateGridMatrix( ) {
+	setGridMatrix( );
+	compensateDistortion( );
+	}
+function compensateDistortion ( ) {
+	// Updates the transform matrix with compensation matrix coefficients
+	const k = Math.sin( 90 * degree - gridConfiguration.xangle + gridConfiguration.yangle );
+	const cs = [
+		Math.cos( gridConfiguration.yangle )/ k ,
+		-Math.sin( gridConfiguration.xangle ) / k , 
+		Math.sin( gridConfiguration.yangle ) / k ,
+		Math.cos( gridConfiguration.xangle ) / k
+		] ;
+	// Loop through the elements that need compensation
+	for ( const e of obliqueCoordinateSystem.querySelectorAll( "[ compensateDistortion ]" )) {
+		// Update the transform matrix
+		const matrix = e.transform.baseVal[0].matrix;
+		matrix.a = cs[ 0 ];
+		matrix.b = cs[ 1 ];
+		matrix.c = cs[ 2 ];
+		matrix.d = cs[ 3 ];
+		}
+	}
+function drawGrid ( ) {
+	setGridMatrix( );
+	const offsetY = tickmarksX.getAttribute( "offsety" );
+	const offsetX = tickmarksY.getAttribute( "offsetx" );
+	// X grid lines parallel to the Y axis
+	for ( let i = gridConfiguration.xmin ; i <= gridConfiguration.xmax ; i += gridConfiguration.xstep ) {
+		const points = [ i, gridConfiguration.ymin, i, gridConfiguration.ymax ] ;
+		const line = createLine( points );
+		( i === 0 ? axisX : gridLinesX ).appendChild( line );
+		// tickmarks x
+		points[ 1 ] = offsetY ;
+		const text = createText( [0, 0] , ( i / gridConfiguration.xstep ).toFixed( 0 ), { compensateDistortion : true , transform: `translate(${ points[ 0 ] },${ points[ 1 ] })` } ) ;
+		tickmarksX.appendChild( text );
+		}
+	// Y grid lines parallel to the X axis
+	for ( let i = gridConfiguration.ymin ; i <= gridConfiguration.ymax ; i += gridConfiguration.ystep ) {
+		const points = [ gridConfiguration.xmin, i, gridConfiguration.xmax, i ] ;
+		const line = createLine( points );
+		( i === 0 ? axisY : gridLinesY ).appendChild( line );
+		// tickmarks y
+		points[ 0 ] = offsetX ;
+		const text = createText( [0, 0] , ( i / gridConfiguration.ystep ).toFixed( 0 ), { compensateDistortion : true , transform: `translate(${ points[ 0 ] },${ points[ 1 ] })` } ) ;
+		tickmarksY.appendChild( text );
+		}
+	compensateDistortion( );
+	}
+function updateView() {
+	// Update the ViewBox based on pan and zoom
+	const width = svgRoot.width.baseVal.value * view.zoom;
+	const height = svgRoot.height.baseVal.value * view.zoom;
+	const minX = view.offsetX - width / 2;
+	const minY = view.offsetY - height / 2;
+	svgRoot.setAttribute( "viewBox", `${minX} ${minY} ${width} ${height}` );
+	}
+svgRoot.addEventListener("mousedown", e => {
+	// Start panning
+	view.isPanning = true ;
+	view.pannigStart = { x : e.clientX , y : e.clientY } ;
+	} ) ;
+window.addEventListener( "mousemove" , e => {
+	// Handle panning
+	if ( ! view.isPanning ) return;
+	const dx = (view.pannigStart.x - e.clientX) * view.zoom ;
+	const dy = (view.pannigStart.y - e.clientY) * view.zoom ;
+	view.offsetX += dx ;
+	view.offsetY += dy ;
+	view.pannigStart = { x : e.clientX, y : e.clientY } ;
+	updateView( );
+	} ) ;
+window.addEventListener( "mouseup", ( ) => view.isPanning = false );  // End panning
+svgRoot.addEventListener( "wheel", e => {
+	// Zoom
+	e.preventDefault( );
+	const zoomFactor = e.deltaY > 0 ? 1.1 : 0.9 ;
+	view.zoom *= zoomFactor ;
+	updateView( );
+	} , { passive : false } ) ;
+// Initial display update
+drawGrid( );
+updateView( );
+</script>
+</body></html>

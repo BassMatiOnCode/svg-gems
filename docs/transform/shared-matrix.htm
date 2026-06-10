@@ -1,0 +1,148 @@
+<!DOCTYPE html><html lang="en"><head>
+
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="author" content="USP" />
+<meta name="creation-date" content="2026-06-04" />
+<meta name="editor" content="USP" />
+<meta name="change-date" content="2026-06-04" />
+<meta name="version" content="1" />
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" sizes="all" />
+<link rel="stylesheet" href="/inc/webcat/math/math-1.css" />
+<link rel="stylesheet" href="/svg-gems/styles.css" />
+<style>
+	input[ type="number" ] { 
+		field-sizing : content ;
+		min-width : 1ch ;
+		max-width : 100% ;
+		border-style : none ;
+		outline : none ;
+		font-family : monospace ;
+		font-size : 120% ;
+		}
+	pre { tab-size : 15px ; margin : 0 10px 0 10px ; padding-bottom : 10px ; overflow : auto ; scrollbar-color : #ddd #f4f4f4 }
+	pre:hover { scrollbar-color : #ccc #fff }
+	hi { color : darkorange }
+	cc { color : green }
+	math mo.short { margin: -4px }
+	</style>
+
+<title>Sharing a Matrix between SVG Elements</title>
+
+</head><body style="padding-bottom : 100px">
+
+<h1>Sharing a Matrix between SVG Elements</h1>
+
+<p>Can an SVGTransform object be shared between SVGElements, so that they all react to changes in that shared transform matrix? Short answer: No. Each element has its own transform instance.</p>
+
+<p>There are three methods to get close to the goal:</p>
+
+<ol>
+<li>Place the elements inside a group (G) element and apply the transform on the group element.</li>
+<li>Create a matrix and distribute (duplicate) it to the target elements</li>
+<li>Create the matrix as CSS custom property and use a CSS transform that references the custom property.</li>
+</ol>
+
+<h2 cbc>Method 2</h2><div>
+
+<iframe src="study-01.htm" frameborder="0" width="322" height="322" ></iframe>
+<div style="padding-left:20px" >
+<button>&minus;</button>&emsp;<button>&plus;</button>
+<script>
+document.currentScript.parentElement.previousElementSibling.onload = ( evt ) => {
+	let phi = 0 ;
+	const container = evt.srcElement.nextElementSibling ;
+	const contentWindow = evt.srcElement.contentWindow ;
+	container.getElementsByTagName("button")[ 0 ].addEventListener( "click" , ( ) => {
+		contentWindow.updateAngles( phi -= 10 );
+		} ) ;
+	container.getElementsByTagName("button")[ 1 ].addEventListener( "click" , ( ) => {
+		contentWindow.updateAngles( phi += 10 );
+		} ) ;
+	}
+</script>
+</div>
+
+<p>To make the code working, we need to add an <tt>SVGTransform</tt> to the elements:</p>
+
+<pre>
+<cc>// Creates the first transform list entry in the elements 
+// with an identity matrix.</cc>
+const transform = svgRoot.createSVGTransformFromMatrix( 
+	svgRoot.createSVGMatrix( ));
+for ( const e of svgRoot.children ) 
+	e.transform.baseVal.appendItem( transform );	
+</pre>
+
+<p>Then we can update the transformation matrix:</p>
+
+<pre>
+function updateAngles( phi ) { <cc>
+	// Replaces the first transform list entry with 
+	// an updated transform object.</cc>
+	const <hi>transform</hi> = svgRoot.createSVGTransformFromMatrix( 
+		svgRoot.createSVGMatrix( ).rotate( phi ));
+	for ( const e of svgRoot.children )
+		e.transform.baseVal[ 0 ] = <hi>transform</hi> ;
+	}
+</pre>
+
+</div><!--h2-- Method 2 -->
+
+<h2 cbc>Method 3</h2><div>
+
+<p>Create the following CSS code:</p>
+
+<pre>
+:root {
+	--shared-matrix: matrix(1,0,0,1,0,0);
+	}
+
+.shared {
+	transform: var(--shared-matrix);
+	transform-box: fill-box;
+	transform-origin: center;
+	}
+</pre>
+
+<p>Then update the matrix with the following script:</p>
+
+<pre>
+document.documentElement.style.setProperty (
+	"--shared-matrix", "matrix(1,0,0,1,50,20)" ) ;
+</pre>
+
+<p>All elements selected by the <tt>.shared{ }</tt> rule will reflect the change immediately.</p>
+
+<iframe src="study-02.htm" frameborder="0" width="322" height="322" ></iframe>
+<div style="padding-left:20px" >
+<button>&minus;</button>&emsp;<button>&plus;</button>
+<script>
+document.currentScript.parentElement.previousElementSibling.onload = ( evt ) => {
+	let phi = 0 ;
+	const container = evt.srcElement.nextElementSibling ;
+	const contentWindow = evt.srcElement.contentWindow ;
+	container.getElementsByTagName("button")[ 0 ].addEventListener( "click" , ( ) => {
+		contentWindow.updateAngles( phi -= 10 );
+		} ) ;
+	container.getElementsByTagName("button")[ 1 ].addEventListener( "click" , ( ) => {
+		contentWindow.updateAngles( phi += 10 );
+		} ) ;
+	}
+</script>
+
+<p>Things to remind:</p>
+
+<ol>
+<li>CSS styles override element attributes. You can retrieve the attribute, but the transform will be overridden.</li>
+<li>CSS styles overrice the element.transform list. SVGTransform elements in this list have no effect.</li>
+</ol>
+
+<p>This means that SVG elements cannot have individiually composed transform lists.</p>
+
+</div>
+
+</div><!--h2--Method 3-->
+
+</body></html>
+

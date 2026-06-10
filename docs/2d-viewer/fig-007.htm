@@ -1,0 +1,67 @@
+<!DOCTYPE html />
+<html lang="en"><head>
+<meta charset="utf-8">
+<title>Figure 6 ŷ basis vector expression</title>
+</head><body>
+
+<svg id="svgRoot" width="400" height="350" viewBox="-50 -50 400 350" style="border:1px solid silver" >
+<defs>
+	<style type="text/css">
+		g.points circle { r : 4px }
+		</style>
+	</defs>
+<g id="cartesianSystem" stroke="#ddd" stroke-width="2" fill="none">
+	<circle r="250" stroke="#000" stroke-width="1" stroke-dasharray="8 8"/>
+	<line x1="-50" x2="400" />
+	<line y1="-50" y2="300" />
+	</g>
+<g id="obliqueSystem" stroke="#fbb" stroke-width="2" >
+	<line x1="-55" x2="375" transform="rotate(20)" />
+	<line y1="-80" y2="100" transform="rotate(50)" />
+	<line y1="-450" y2="70" transform="translate(0,250) rotate(50)" />
+	</g>
+<g class="points" stroke="none" fill="#888">
+	<circle  />
+	<circle cx="250" />
+	<circle cy="250" />
+	<circle cx="207" cy="76" />
+	</g>
+<g id="annotations" font-size="18" stroke="white" stroke-width="6" paint-order="stroke fill">
+	<g fill="#888" transform="translate(0,-1)">
+		</g>
+	<g fill="#f44">
+		</g>
+	<g fill="black">
+		<text x="-7" y="-17" text-anchor="start" dominant-baseline="text-bottom">O <tspan fill="#888"> (0,0)</tspan></text>
+		<text x="243" y="-17" text-anchor="start" dominant-baseline="text-bottom">X <tspan fill="#888"> (1,0)</tspan></text>		<text x="-7" y="265" text-anchor="start" dominant-baseline="hanging">Y <tspan fill="#888"> (0,1)</tspan></text>
+		<text x="207" y="95" text-anchor="middle" dominant-baseline="central">Q</text>
+		<text x="100" y="34" text-anchor="middle" dominant-baseline="central">c</text>
+		<text x="100" y="162" text-anchor="middle" dominant-baseline="central">d</text>
+		<text x="125" y="-2" text-anchor="middle" dominant-baseline="central">x</text>
+		<text x="0" y="125" text-anchor="middle" dominant-baseline="central">y</text>
+		<text x="65" y="8" text-anchor="middle" dominant-baseline="central">&eta;</text>
+		<text x="-14" y="30" text-anchor="middle" dominant-baseline="central">&theta;</text>
+		<text x="20" y="25" text-anchor="middle" dominant-baseline="central">&delta;</text>
+		<text x="15" y="210" text-anchor="middle" dominant-baseline="central">&theta;</text>
+		<text x="200" y="55" text-anchor="middle dominant-baseline="central">&gamma;</text>
+		<text x="175" y="83" text-anchor="end" dominant-baseline="central">&epsilon;</text>
+		</g>
+	</g>
+</svg>
+
+<script type="module">
+const radians = Math.PI / 180 ;
+const theta = +25 * radians ;		// x-axis tilt angle
+const phi = -25 * radians ;			// y-axis tilt angle
+const a = Math.cos( theta );
+const b = Math.sin( theta );
+const c = -Math.sin( phi );
+const d = Math.cos( phi );
+// obliqueSystem.setAttribute( "transform" , `matrix( ${ a }, ${ b }, ${ c }, ${ d }, 0, 0 )` );
+function transform( r, s ) { return { 
+	x : r * a + c * s ,
+	y : r * b + d * s
+	} } ;
+</script>
+
+</body></html>

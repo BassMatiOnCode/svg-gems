@@ -1,0 +1,65 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" sizes="all" />
+
+<style>
+:root { --shared-matrix: matrix(1,0,0,1,0,0) }
+
+.shared {
+	transform : var( --shared-matrix ) ;
+	transform-box : fill-box ;
+	transform-origin : center ;
+	}
+</style>
+
+<title>Study 2: Shared transformation matrix</title>
+<meta name="description" content="This study demonstrates how to share a CSS transform matrix between multiple SVG elements" />
+<meta name="findings" content="CSS overrides SVG element attributes, and also svgElement.transform list entries set with JavaScript. Therefore, all affected SVG elements cannot have individual transform configurations." />
+
+</head><body>
+
+<svg id="svgRoot" width="300" height="300" viewBox="-150 -150 300 300" style="border:1px solid silver" stroke="black">
+</svg>
+
+<script>
+let line ;
+line = document.createElementNS( svgRoot.namespaceURI, "line" ) ;
+	line.id = "centerline" ;
+	line.setAttribute( "x1" , -100 );
+	line.setAttribute( "x2" , +100 );
+	line.setAttribute( "class" , "shared" );
+//	line.setAttribute( "transform" , "translate(0,30)" );
+	svgRoot.append( line );
+line = document.createElementNS( svgRoot.namespaceURI, "line" ) ;
+	line.id = "topline" ;
+	line.setAttribute( "x1" , -100 );
+	line.setAttribute( "x2" , +100 );
+	line.setAttribute( "y1" , -100 );
+	line.setAttribute( "y2" , -100 );
+	line.setAttribute( "class" , "shared" );
+//	line.setAttribute( "transform" , "translate(0,30)" );
+	svgRoot.append( line );
+line = document.createElementNS( svgRoot.namespaceURI, "line" ) ;
+	line.id = "bottomline" ;
+	line.setAttribute( "x1" , -100 );
+	line.setAttribute( "x2" , +100 );
+	line.setAttribute( "y1" , +100 );
+	line.setAttribute( "y2" , +100 );
+	line.setAttribute( "class" , "shared" );
+//	line.setAttribute( "transform" , "translate(0,30)" );
+	svgRoot.append( line );
+function initializeAngles( ) {
+	// Creates the first transform list entry in the elements with an identity matrix.
+	const transform = svgRoot.createSVGTransformFromMatrix( svgRoot.createSVGMatrix( ).rotate( 30 ) );
+	for ( const e of svgRoot.children ) {
+		e.transform.baseVal.appendItem( transform );	
+		}
+	}
+initializeAngles( );
+function updateAngles( phi ) {
+	const matrix = new DOMMatrix( ).rotate( phi );
+	document.documentElement.style.setProperty ( "--shared-matrix" , matrix.toString( ) ) ;
+	}
+</script>
+</body></html>

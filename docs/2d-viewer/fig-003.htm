@@ -1,0 +1,34 @@
+<html><head>
+<style>
+	g#points circle { r : 4px }
+	</style>
+
+</head><body>
+
+<svg id="svgRoot" width="250" height="350" viewBox="-175 -50 250 350" style="border:1px solid silver" >
+<g id="cartesianSystem" stroke="#ddd" stroke-width="2" >
+	<circle r="250" fill="none" stroke="#888" stroke-width="1" stroke-dasharray="8 8"/>
+	<line x1="-175" x2="75" /> <!-- x-axis -->
+	<line x1="-175" x2="75" y1="217" y2="217" />
+	<line y1="-75" y2="300" /> <!-- y-axis -->
+	<line y1="-75" y2="300" stroke="#fbb" transform="rotate(30)"/>
+	</g>
+<g id="points" stroke="none" fill="#888">
+	<circle />
+	<circle cy="250" />
+	<circle cx="-125" cy="217" />
+	<circle cy="217" />
+	</g>
+<g id="annotations" font-size="16" text-anchor="middle" dominant-baseline="central" stroke="white" stroke-width="6" fill="#888" paint-order="stroke fill">
+	<text y="-20">O</text>
+	<text x="-132" y="233">R</text>
+	<text x="15" y="217">S</text>
+	<text y="270">Y</text>
+	<text x="-60" y="217" dominant-baseline="middle">c</text>
+	<text y="120">d</text>
+	<text x="-70" y="120">r</text>
+	<text x="-15" y="50">&theta;</text>
+	</g>
+</svg>
+
+</body></html>

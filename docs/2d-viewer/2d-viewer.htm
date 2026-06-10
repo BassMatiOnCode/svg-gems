@@ -1,0 +1,935 @@
+﻿<!DOCTYPE html><html lang="en"><head>
+
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="author" content="USP" />
+<meta name="creation-date" content="2026-05-14" />
+<meta name="editor" content="USP" />
+<meta name="change-date" content="2026-05-14" />
+<meta name="version" content="1" />
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" sizes="all" />
+<link rel="stylesheet" href="/math/styles.css" />
+<link rel="stylesheet" href="/svg-gems/styles.css" />
+<link rel="stylesheet href="/inc/webcat/numbered-equation/numbered-equation-2.css" />
+<script type="module" src="/inc/webcat/numbered-equation/numbered-equation-2.js"></script>
+<style>
+	input[ type="number" ] { 
+		field-sizing : content ;
+		min-width : 1ch ;
+		max-width : 100% ;
+		border-style : none ;
+		outline : none ;
+		font-family : monospace ;
+		font-size : 120% ;
+		}
+	pre { tab-size : 15px }
+	hi { color : darkorange }
+	cc { color : green }
+	</style>
+
+<title>A 2D funktion viewer based on HTML and SVG</title>
+
+</head><body>
+
+<h1>2D Viewer</h1>
+
+<h2 cbc>Cartesian Coordinate Systems</h2><div>
+
+<p>A Cartesian coordinate system as  orthogonal axes as in demo 1:</p>
+
+<iframe src="demo-01.htm" frameborder="0" style="width:520px ; height:520px"></iframe>
+
+<p>You can drag the grid with the mouse and zoom with the mouse wheel.</p>
+
+</div><!--h2--Cartesian Coordinate Systems-->
+
+<h2 cbc>Oblique Coordinate Systems</h2><div>
+
+<p>In an <em>oblique</em> coordinate system, the axes are at arbitrary angles, rotated around their origin. The angle between them can differ from 90 degrees, creating a non-orthogonal oblique coordinate system. The tilted grid lines create a diamond-shaped (rhombic) pattern as shown in <a href="demo-02.htm" target="demo-02">demo-02.htm</a>:</p>
+
+<iframe id="demo2" src="demo-02.htm" frameborder="0" width="520" height="520"></iframe>
+
+<div id="demo2input" style="margin-left:15px">&eta;: <input id="demo2xangle" type="number" min="-179" max="180" value="10"/> &theta;: <input id="demo2yangle" type="number" min="-179" max="180" value="10"/> <button id=demo2update>Update</button></div>
+
+<script>
+demo2.onload = ( ) => {
+	// Get grid configuration
+	const { degree, radian } = demo2.contentWindow.getAngleUnits( );
+	const g = demo2.contentWindow.getGrid( );
+	demo2xangle.value = (g.xangle * radian).toFixed( 0 ) ;
+	demo2yangle.value = (g.yangle * radian).toFixed( 0 );
+	demo2update.onclick = ( ) => {
+		g.xangle = demo2xangle.value * degree ;
+		g.yangle = demo2yangle.value * degree ;
+		demo2.contentWindow.drawGrid( );
+		demo2.contentWindow.updateView( );
+		} ;
+	demo2input.onkeypress = evt => {
+		if ( evt.code === "Enter" ) demo2update.onclick( );
+		} ;
+	} ;
+</script>
+
+<p>Such  a coordinate system can be created graphically by rotating the axes about the origin (0,0) by arbitrary angles, then drawing the grid lines equidistant and parallel to them. Arithmetically, we can use a <em>linear tranformation</em> to transfrom the coordinates from the oblique coordinate system (red) into the underlying Cartesian coordinate system of SVG (grey).</p>
+
+<p>Let's have a look at <a href="fig-001.htm" target="_blank">figure 1</a>:</p>
+
+<iframe src="fig-001.htm" width="420" height="360" frameborder="0" ></iframe>
+
+<p>The oblique coordinate system has the axes <math><mi>u</mi></math> and <math><mi>v</mi></math> with the basis vectors <math><mover><mi>u</mi><mo>&RightVector;</mo></mover><mo>=</mo><mtext class="overlinebox">OP</mtext></math> and <math><mover><mi>v</mi><mo>&RightVector;</mo></mover><mo>=</mo><mtext class="overlinebox">OQ</mtext></math>. The <math><mi>u</mi></math> axis goes from top left to bottom down and is rotated clockwise by <math><mi>&eta;</mi><mo>=</mo><mn>20&deg;</mn></math> from the horizontal, the <math><mi>v</mi></math>-axis goes from top right to bottom left and is tilted by <math><mi>&eta;</mi><mo>=</mo><mn>30&deg;</mn></math> from the vertical.</p>
+
+<p>The Cartesian (SVG) coordinate system is shown in grey. Its x-axis with the basis vector <math><mover><mi>x</mi><mo>&RightVector;</mo></mover><mo>=</mo><mtext class="overlinebox">OX</mtext></math>is oriented horizontally from left to right, its y-axis with the basis vector <math><mover><mi>y</mi><mo>&RightVector;</mo></mover><mo>=</mo><mtext class="overlinebox">OY</mtext></math> goes vertically from top to bottom. </p>
+
+<p>Note that all four basis vectors end on the unit circle with <math><mi>r</mi><mo>=</mo><mn>1</mn></math> around the origin <math><mi>O</mi><mo>=</mo><mtext>(0,0)</mtext></math>, they all have the length 1 in both coordinate systemss.</p>
+
+<p>The red points have unit coordinates (0,1), (1,0), (1,1) in the oblique coordinate system. The searched transformation function must yield their (grey) Cartesian coordinates. </p>
+
+<p>To find the coefficients <math><mi>a</mi></math> and <math><mi>b</mi></math>, refer to <a href="fig-002.htm" target="_blank">figure 2</a>:</p>
+
+<iframe src="fig-002.htm" width="370" height="220" frameborder="0" ></iframe>
+
+<p>The point <math><mi>X</mi></math> lies on the unit circle. We find point <math><mi>P</mi></math> as the intersection of the oblique x-axis with the unit circle. The point <math><mi>Q</mi></math> is the orthogonal projection of <math><mi>P</mi></math> onto the Cartesian x-axis, therefore we have a right triangle OPQ with the right angle at the point <math><mi>Q</mi></math>.</p>
+
+<p>Then we can find</p>
+
+<math display="block">
+<mi>a</mi><mo>=</mo><mi>r</mi><mo>cos</mo><mi>&eta;</mi>
+</math>
+
+<math display="block">
+<mi>b</mi><mo>=</mo><mi>r</mi><mo>sin</mo><mi>&eta;</mi>
+</math>
+
+<p>Since <math><mi>P</mi></math> lies on the unit circle, <math><mi>r</mi><mo>=</mo><mn>1</mn></math>, and we get</p>
+
+<math display="block" eqn-num="1" >
+<mi>a</mi><mo>=</mo><<mo>cos</mo><mi>&eta;</mi>
+</math>
+
+<math display="block" eqn-num="2">
+<mi>b</mi><mo>=</mo><mo>sin</mo><mi>&eta;</mi>
+</math>
+
+<p>Step 2 determines the transformation coefficients <math><mi>c</mi></math> and <math><mi>d</mi></math>. The construction in <a href="fig-003.htm" target="_blank">figure 3</a> is similar to the one above:</p>
+
+<iframe src="fig-003.htm" width="270" height="370" frameborder="0" style="margin-left:20px"></iframe>
+
+<p>We find the point <math><mi>Y</mi><mo>=</mo><mtext>(0,1)</mtext></math> on the Cartesian y-axis. This point lies on the unit circle around the origin <math><mi>O</mi><mo>=</mo><mtext>(0,0)</mtext></math>. Then we construct point <math><mi>R</mi></math> as intersection of the oblique v-axis with the unit circle and project it orthogonally onto the y-axis, which gives us the point <math><mi>S</mi></math>. This creates a triangle with the points ORS with a right angle at <math><mi>S</mi></math>.</p>
+
+<p>Since <math><mi>r</mi><mo>=</mo><mn>1</mn></math>, we can express the sides <math><mi>c</mi></math> and <math><mi>d</mi></math> as</p>
+
+<math display="block" eqn-num="3">
+<mi>c</mi><mo>=</mo><mo>&minus;sin</mo><mi>&eta;</mi>
+</math>
+
+<math display="block" eqn-num="4">
+<mi>d</mi><mo>=</mo><mo>cos</mo><mi>&eta;</mi>
+</math>
+
+<p>Note that <math><mi>c</mi></math> is negative since a positive angle <math><mi>&eta;</mi></math> produces negative x-values (<math><mi>c</mi></math> goes in the negative x-direction).</p>
+
+<p>These results can be combined to obtain the transformation matrix</p>
+
+<math display="block">
+<mi>M</mi><mo>=</mo>
+<mo>[</mo><mtable><mtr>
+	<mtd><mi>a</mi></mtd>
+	<mtd><mi>c</mi></mtd>
+</mtr><mtr>
+	<mtd><mi>b</mi></mtd>
+	<mtd>d</mtd>
+</mtr></mtable><mo>]</mo>
+<mo>=</mo>
+<mo>[</mo><mtable><mtr>
+	<mtd><mo>cos</mo><mi>&eta;</mi></mtd>
+	<mtd><mo>&minus;sin</mo><mi>&eta;</mi></mtd>
+</mtr><mtr>
+	<mtd><mo>sin</mo><mi>&eta;</mi></mtd>
+	<mtd><mo>cos</mo><mi>&eta;</mi></mtd>
+</mtr></mtable><mo>]</mo>
+</math>
+
+<p>This matrix can be used to obtain the Cartesian coordinates (x,y) of any point (u,v) in the oblique coordinate system:</p>
+
+<math display="block">
+<mi>x</mi><mo>=</mo><mi>u</mi><mo>cos</mo><mi>&eta;</mi><mo>&minus;</mo><mi>v</mi><mo>sin</mo><mi>&theta;</mi>
+</math>
+
+<math display="block">
+<mi>y</mi><mo>=</mo><mi>u</mi><mo>sin</mo><mi>&eta;</mi><mo>+</mo><mi>v</mi><mo>cos</mo><mi>&theta;</mi>
+</math>
+
+<p>These equations represent our transformation function. They can be found in the <tt>transform()</tt> function in <a href="demo-02.htm">demo 2</a>. Every point in the oblique coordinate system must be passed through this transform() function in order to get its equivalent Cartesian SVG coodinates.</p>
+
+</div><!--h2--Oblique Coordinate Systems-->
+
+<h2 cbc>Transformation Matrix</h2><div>
+
+<p>SVG natively supports a matrix transform. The attribute <tt>transform="matrix(a, b, c, d, e, f)"</tt> introduces a transformation matrix of the following form:</p>
+
+<math display="block">
+<mi>M</mi><mo>=</mo>
+<mo>(</mo><mtable><mtr>
+	<mtd><mi>a</mi></mtd>
+	<mtd><mi>c</mi></mtd>
+	<mtd><mi>e</mi></mtd>
+</mtr><mtr>
+	<mtd><mi>b</mi></mtd>
+	<mtd><mi>d</mi></mtd>
+	<mtd><mi>f</mi></mtd>
+</mtr><mtr>
+	<mtd><mi>0</mi></mtd>
+	<mtd><mi>0</mi></mtd>
+	<mtd><mi>1</mi></mtd>
+</mtr></mtable><mo>)</mo>
+</math>
+
+<p>The coefficients a to d correspond to our tranformation matrix from above, the parameters <math><mi>e</mi></math> and <math><mi>f</mi></math> control a linear translation in x and y direction.</p>
+
+<math display="block">
+<mi>M</mi><mo>=</mo>
+<mo>(</mo><mtable><mtr>
+	<mtd><mo>cos</mo><mi>&eta;</mi></mtd>
+	<mtd><mo>&minus;sin</mo><mi>&theta;</mi></mtd>
+	<mtd><mi>e</mi></mtd>
+</mtr><mtr>
+	<mtd><mo>sin</mo><mi>&eta;</mi></mtd>
+	<mtd><mo>cos</mo><mi>&theta;</mi></mtd>
+	<mtd><mi>f</mi></mtd>
+</mtr><mtr>
+	<mtd><mi>0</mi></mtd>
+	<mtd><mi>0</mi></mtd>
+	<mtd><mi>1</mi></mtd>
+</mtr></mtable><mo>)</mo>
+</math>
+
+<p>Therefore, the parameters are</p>
+
+<math display="block">
+<mtable>
+<mtr><mtd><mi>a</mi></mtd><mtd><mo>=</mo></mtd><mtd><mo>cos</mo><mi>&eta;</mi></mtd></mtr>
+<mtr><mtd><mi>b</mi></mtd><mtd><mo>=</mo></mtd><mtd><mo>sin</mo><mi>&eta;</mi></mtd></mtr>
+<mtr><mtd><mi>c</mi></mtd><mtd><mo>=</mo></mtd><mtd><mo>&minus;sin</mo><mi>&eta;</mi></mtd></mtr>
+<mtr><mtd><mi>d</mi></mtd><mtd><mo>=</mo></mtd><mtd><mo>cos</mo><mi>&eta;</mi></mtd></mtr>
+<mtr><mtd><mi>e</mi></mtd><mtd><mo>=</mo></mtd><mtd><mn>0</mn></mtd></mtr>
+<mtr><mtd><mi>f</mi></mtd><mtd><mo>=</mo></mtd><mtd><mn>0</mn></mtd></mtr>
+</mtable>
+</math>
+
+<p>An example:</p>
+
+<pre>
+&lt;g	id="obliqueCoordinateSystem" 
+	transform="matrix( 0.94, 0.34, -0.5, 0.87, 0, 0)" &gt;
+	...
+	&lt;/g&gt;
+</pre>
+
+</div><!--h2--Transformation Matrix-->
+
+<h2 cbc>Preventing Distortion 1</h2><div>
+
+<p>A matrix transformation, applied to the coordinate system group, <em>distorts</em> every geometrical aspect of elements inside that group. This might undesirable, for example for axis tick labels or dots that designate points, as demonstrated in <a href="demo-03.htm" target="_blank">demo 3</a>:</p>
+
+<iframe id="demo3" src="demo-03.htm" frameborder="0" width="530" height="530"></iframe>
+
+<div id="demo3input" style="margin-left:15px">&eta;: <input name="xangle" type="number" min="-179" max="180" value="10"/> &theta;: <input name="yangle" type="number" min="-179" max="180" value="10"/> <button name="update">Update</button></div>
+
+<script>
+demo3.onload = ( ) => {
+	// Reference input elements
+	const xangle=demo3input.querySelector( "[ name = 'xangle' ]" ) ;
+	const yangle=demo3input.querySelector( "[ name = 'yangle' ]" ) ;
+	// Get grid configuration
+	const { degree, radian } = demo3.contentWindow.getAngleUnits( );
+	const grid = demo3.contentWindow.getGridConfiguration( );
+	xangle.value = (grid.xangle * radian).toFixed( 0 ) ;
+	yangle.value = (grid.yangle * radian).toFixed( 0 );
+	demo3input.querySelector( "[ name = 'update' ]" ).onclick = ( ) => {
+		grid.xangle = xangle.value * degree ;
+		grid.yangle = yangle.value * degree ;
+		demo3.contentWindow.setGridMatrix( );
+		} ;
+	demo3input.onkeypress = evt => {
+		if ( evt.code === "Enter" ) {
+			demo3input.querySelector( "[ name = 'update' ]" ).onclick( );
+			}
+		} ;
+	} ;
+</script>
+
+<p>The advantage of the matrix transformation is that the grid does not have to be recreated as in demo 2, it is sufficient to change the transformation matrix when the axis angles change:</p>
+
+<pre>
+demo3.contentWindow.setGridMatrix( );
+</pre>
+
+<p>One method to prevent distortion is to pull these elements out of that group and positition them manually with the help of the transform function:</p>
+
+<pre>
+&lt;g id="<hi>obliqueCoordinateSystem</hi>" transform="matrix( ... )" &gt;
+	<cc>&lt;!-- Elements in this group will be distorted --&gt;</cc>
+	&lt;/g&gt;
+&lt;g id="annotations"&gt;
+	<cc>&lt;!-- Manually positioned elements go here. --&gt;</cc>
+	&lt;/g&gt;
+</pre>
+
+<p>The elements in the annotations group should not be positioned with attributes. Instead, add a <tt>coords</tt> attribute that contains a space-separated list of numbers that will be used for positioning:</p>
+
+<pre>
+&lt;text <hi>coords</hi>="50 -18" &gt;1&lt;/text&gt;
+&lt;text <hi>coords</hi>="100 -18" &gt;2&lt;/text&gt;
+&lt;text <hi>coords</hi>="150 -18" &gt;3&lt;/text&gt;
+</pre>
+
+<p>Depending on the element type, these numbers will be used to position the element</p>
+
+<pre>
+function <hi>positionElements</hi> ( ) {
+	for ( const e of svgRoot.querySelectorAll( "[<hi>coords</hi>]" )) {
+		const <hi>points</hi> = <hi>transform</hi>( e.getAttribute( "<hi>coords</hi>" ).split( " " ));
+		switch ( e.tagName ) {
+		case "circle" :
+			e.setAttribute( "cx" , points[ 0 ] );
+			e.setAttribute( "cy" , points[ 1 ] );
+			break ;
+		case "text" :
+			e.setAttribute( "x" , points[ 0 ] );
+			e.setAttribute( "y" , points[ 1 ] );
+			break ;
+		case "rect" :
+			e.setAttribute( "x" , points[ 0 ] );
+			e.setAttribute( "y" , points[ 1 ] );
+			e.setAttribute( "width" , points[ 2 ] );
+			e.setAttribute( "height" , points[ 3 ] );
+			break ;
+			}
+		}
+	}
+</pre>
+
+<p><a href="demo-04.htm" target="_blank">Demo 4</a> shows how to implement this technique:</p>
+
+<iframe id="demo4" src="demo-04.htm" frameborder="0" width="530" height="530"></iframe>
+
+<div id="demo4input" style="margin-left:15px">&eta;: <input name="xangle" type="number" min="-179" max="180" value="10"/> &theta;: <input name="yangle" type="number" min="-179" max="180" value="10"/> <button name="update">Update</button></div>
+
+<script>
+demo4.onload = ( ) => {
+	// Reference input elements
+	const demo = demo4 ;
+	const inputPanel = demo4input ;
+	const xangle=inputPanel.querySelector( "[ name = 'xangle' ]" ) ;
+	const yangle=inputPanel.querySelector( "[ name = 'yangle' ]" ) ;
+	// Get grid configuration
+	const { degree, radian } = demo.contentWindow.getAngleUnits( );
+	const grid = demo.contentWindow.getGridConfiguration( );
+	xangle.value = (grid.xangle * radian).toFixed( 0 ) ;
+	yangle.value = (grid.yangle * radian).toFixed( 0 );
+	inputPanel.querySelector( "[ name = 'update' ]" ).onclick = ( ) => {
+		grid.xangle = xangle.value * degree ;
+		grid.yangle = yangle.value * degree ;
+		demo.contentWindow.setGridMatrix( );
+		} ;
+	inputPanel.onkeypress = evt => {
+		if ( evt.code === "Enter" ) {
+			inputPanel.querySelector( "[ name = 'update' ]" ).onclick( );
+			}
+		} ;
+	} ;
+</script>
+
+<p>The downside of this method is that annotation elements are pulled out of their "natural context", which makes SVG document creation and maintenance harder. </p>
+
+</div><!--h2--Preventing Distortion 1-->
+
+<h2 cbc>Preventing Distortion 2</h2><div>
+
+<p>If elements are positioned manually to prevent distortion, they must be pulled out of the oblique coordinate system and put in a container with cartesian coordinates &ndash; which makes creation and maintenance of an SVG document harder. In this chapter, we will leave these elements in their natural context and apply a compensation matrix on them.</p>
+
+<p>The linear part of this matrix is the inverse transformation matrix from above. Since linear transformations also change the position, we will use the e and f coefficients to compensate this translation.</p>
+
+<h3 cbc>Finding the Coefficients a and b</h3><div>
+
+<p>To find the inverse matrix geometrically, we will express the Cartesian basis vectors <math><mover><mi>x</mi><mo>^</mo></mover></math> and <math><mover><mi>y</mi><mo>^</mo></mover></math> in terms of the oblique basis vectors <math><mover><mi>u</mi><mo>^</mo></mover></math> and <math><mover><mi>v</mi><mo>^</mo></mover></math>. 
+
+<p>We begin with the inverse rotation matrix. In the first step, we find a linear combination of  <math><mover><mi>u</mi><mo>^</mo></mover><mo>=</mo></math> and <math><mover><mi>v</mi><mo>^</mo></mover></math> for <math><mover><mi>x</mi><mo>^</mo></mover></math>: </p>
+
+<math display="block">
+<mover><mi>x</mi><mo>^</mo></mover><mo>=</mo><mi>a</mi><mover><mi>u</mi><mo>^</mo></mover><mo>+</mo><mi>b</mi><mover><mi>v</mi><mo>^</mo></mover>
+</math>
+
+<p><a href="fig-006.htm" target="_blank">Figure 6</a> illustrates that:</p>
+
+<iframe src="fig-006.htm" frameborder="0" width="420" height="220" ></iframe>
+
+<p>Just like above, grey lines represent the Cartesian system and red lines represent the oblique coordinate system. The line segment <math><mtext class="overlinebox">OX</mtext></math> represents the Cartesian basis vector <math><mover><mi>x</mi><mo>^</mo></mover></math>, so</p>
+
+<math display="block"><mrow><mo>|</mo><mtext>OX</mtext><mo>|</mo></mrow><mo>=</mo><mi>x</mi><mo>=</mo><mn>1</mn></math>
+
+<p>Now we construct the line <math><mtext class="overlinebox">XP</mtext></math> as a parallel to the oblique v-axis through point <math><mi>X</mi><mo>=</mo><mtext>(1,0)</mtext></math>, which intersects with the oblique u-axis in the point <math><mi>P</mi></math>. This creates the triangle <math><mtext>OPX</mtext></math> with the sides <math><mi>a</mi></math>, <math><mi>b</mi></math> and <math><mi>x</mi></math>.</p>
+
+<p>The triangle is not a right trianlge, so we must use the <a href="https://en.wikipedia.org/wiki/Law_of_sines">rule of sines</a> to find the length of sides:</p>
+
+<math display="block">
+<mfrac><mrow><mo>sin</mo><mi>&gamma;</mi></mrow><mi>x</mi></mfrac><mi></mi>
+<mo>=</mo>
+<mfrac><mrow><mo>sin</mo><mi>&alpha;</mi></mrow><mi>a</mi></mfrac><mi></mi>
+<mo>=</mo>
+<mo>&minus;</mo><mfrac><mrow><mo>sin</mo><mi>&eta;</mi></mrow><mi>b</mi></mfrac><mi></mi>
+</math>
+
+<p>The value of <math><mi>b</mi></math> is <em>negative</em> because we are traveling from <math><mtext>O</mtext></math> to <math><mtext>P</mtext></math> to <math><mtext>X</mtext></math>, and the last part is in the opposite direction of the basis vector <math><mover><mi>v</mi><mo>^</mo></mover></math>.</p>
+
+<p>Since <math><mi>x</mi><mo>=</mo><mn>1</mn></math>, we can solve for <math><mi>a</mi></math> and <math><mi>b</mi></math>:</p>
+
+<math display="block">
+<mi>a</mi><mo>=</mo><mfrac>
+	<mrow><mo>sin</mo><mi>&alpha;</mi></mrow>
+	<mrow><mo>sin</mo><mi>&gamma;</mi></mrow>
+</mfrac>
+</math>
+
+<math display="block" eqn-num="5">
+<mi>b</mi><mo>=</mo><mo>&minus;</mo><mfrac>
+	<mrow><mo>sin</mo><mi>&eta;</mi></mrow>
+	<mrow><mo>sin</mo><mi>&gamma;</mi></mrow>
+</mfrac>
+</math>
+
+<p>It is obvious from the angles at point X, that we can express <math><mi>&alpha;</mi></math> in terms of <math><mi>&eta;</mi></math>:</p>
+
+<math display="block">
+<mi>&alpha;</mi><mo>=</mo><mn>90&deg;</mn><mo>&minus;</mo><mi>&theta;</mi>
+</math>
+
+<p>Since <math><mo>sin</mo><mo stretchy="false">(</mo><mn>90&deg;</mn><mo>&minus;</mo><mi>&theta;</mi><mo stretchy="false">)</mo><mo>=</mo><mo>cos</mo><mo stretchy="false">(</mo><mo>&minus;</mo><mi>&theta;</mi><mo stretchy="false">)</mo><mo>=</mo><mo>cos</mo><mi>&theta;</mi></math>, we get</p>
+
+<math display="block" eqn-num="6">
+<mi>a</mi><mo>=</mo><mfrac>
+	<mrow><mo>cos</mo><mi>&theta;</mi></mrow>
+	<mrow><mo>sin</mo><mi>&gamma;</mi></mrow>
+</mfrac>
+</math>
+
+<p>The sum of interior angles in a triangle is 180&deg;, so we can express <math><mi>&gamma;</mi></math> in terms of <math><mi>&eta;</mi></math> and <math><mi>&eta;</mi></math>:</p>
+
+<math display="block">
+<mi>&eta;</mi><mo>+</mo><mi>&alpha;</mi><mo>+</mo><mi>&gamma;</mi><mo>=</mo><mn>180&deg;</mn>
+</math>
+
+<math display="block">
+<mi>&gamma;</mi><mo>=</mo><mn>180&deg;</mn><mo>&minus;</mo><mi>&eta;</mi><mo>&minus;</mo><mn>90&deg;</mn><mo>+</mo><mi>&theta;</mi>
+</math>
+
+<math display="block" eqn-num="7">
+<mi>&gamma;</mi><mo>=</mo><mn>90&deg;</mn><mo>&minus;</mo><mi>&eta;</mi><mo>+</mo><mi>&theta;</mi>
+</math>
+
+</div><!--h3--Finding the Coefficients a and b-->
+
+<h3 cbc>Finding the Coefficients c and d</h3><div>
+
+<p>In the second step, we will express the Cartesian basis vector <math><mover><mi>y</mi><mo>^</mo></mover></math> as linear combination of the oblique basis vectors <math><mover><mi>u</mi><mo>^</mo></mover></math> and <math><mover><mi>v</mi><mo>^</mo></mover></math>: </p>
+
+<math display="block">
+<mover><mi>y</mi><mo>^</mo></mover><mo>=</mo><mi>c</mi><mover><mi>u</mi><mo>^</mo></mover><mo>+</mo><mi>d</mi><mover><mi>v</mi><mo>^</mo></mover>
+</math>
+
+<p>So let's have a look at <a href="fig-007.htm" target="_blank">figure 7</a>:</p>
+
+<iframe src="fig-007.htm" frameborder="0" width="420" height="370" ></iframe>
+
+<p>Since <math><mrow><mo>|</mo><mtext>OY</mtext><mo>|</mo></mrow></math> represents the Cartesian basis vector <math><mover><mi>y</mi><mo>^</mo></mover></math>, </p>
+
+<math display="block">
+<mi>y</mi><mo>=</mo><mrow><mo>|</mo><mtext>OY</mtext><mo>|</mo></mrow><mo>=</mo><mn>1</mn>
+</math>
+
+<p>We create a triangle <math><mtext>OQY</mtext></math>  by drawing a parallel to the oblique v-axis through <math><mi>Y</mi></math> and obtain <math><mi>Q</mi></math> at the intersection with the obliqe u-axis. Then we call <math><mi class="overlinebox">OQ</mi><mo>=</mo><mi>c</mi></math> and <math><mi class="overlinebox">QY</mi><mo>=</mo><mi>d</mi></math>. Their lengths represent the corresponding transformation matrix entries c and d.</p>
+
+<p>We apply the law of sines and find</p>
+
+<math display="block">
+<mfrac><mrow><mo>sin</mo><mi>&theta;</mi></mrow><mi>c</mi></mfrac>
+<mo>=</mo>
+<mfrac><mrow><mo>sin</mo><mi>&delta;</mi></mrow><mi>d</mi></mfrac>
+<mo>=</mo>
+<mfrac><mrow><mo>sin</mo><mi>&epsilon;</mi></mrow><mi>y</mi></mfrac>
+</math>
+
+<p>Since <math><mi>&gamma;</mi></math> and <math><mi>&epsilon;</mi></math> are supplementary angles, their sines are identical:</p>
+
+<math display="block">
+<mo>sin</mo><mi>&epsilon;</mi><mo>=</mo><mo>sin</mo><mi>&gamma;</mi>
+</math>
+
+<p>an we will substitute <math><mi>&gamma;</mi></math> for <math><mi>&epsilon;</mi></math> below.</p>
+
+<p>Since <math><mi>y</mi><mo>=</mo><mrow><mo>|</mo><mtext>OY</mtext><mo>|</mo></mrow><mo>=</mo><mn>1</mn></math>, we can solve for <math><mi>c</mi></math> and <math><mi>d</mi></math>:</p>
+
+<math display="block" eqn-num="8">
+<mi>c</mi><mo>=</mo>
+<mfrac>
+	<mrow><mo>sin</mo><mi>&theta;</mi></mrow>
+	<mrow><mo>sin</mo><mi>&gamma;</mi></mrow>
+</mfrac>
+</math>
+
+<math display="block">
+<mi>d</mi><mo>=</mo>
+<mfrac>
+	<mrow><mo>sin</mo><mi>&delta;</mi></mrow>
+	<mrow><mo>sin</mo><mi>&gamma;</mi></mrow>
+</mfrac>
+</math>
+
+<p>With</p>
+
+<math display="block">
+<mi>&delta;</mi><mo>=</mo><mn>90&deg;</mn><mo>&minus;</mo><mi>&eta;</mi>
+</math>
+
+<math display="block">
+<mo>sin</mo><mo stretchy="false">(</mo><mn>90&deg;</mn><mo>&minus;</mo><mi>&eta;</mi><mo stretchy="false">)</mo><mo>=</mo><mo>cos</mo><mi>&eta;</mi>
+</math>
+
+<p>follows</p>
+
+<math display="block" eqn-num="9">
+<mi>d</mi><mo>=</mo>
+<mfrac>
+	<mrow><mo>cos</mo><mi>&eta;</mi></mrow>
+	<mrow><mo>sin</mo><mi>&gamma;</mi></mrow>
+</mfrac>
+</math>
+
+</div><!--h3--Finding the Coefficients c and d-->
+
+<h3 cbc>Compensating Translation</h3><div>
+
+<p>A transformation, appliend on an element, rotates, scales or skews around the coordinate system's origin (0,0), not around the element's position. Therefore the element is displaced from the point <math><msub><mi>P</mi><mn>1</mn></msub><mo>=</mo><mo stretchy="false" >(</mo><msub><mi>x</mi><mn>1</mn></msub><mo>,</mo><msub><mi>y</mi><mn>1</mn></msub><mo stretchy="false" >)</mo></math> to the point <math><msub><mi>P</mi><mn>2</mn></msub><mo>=</mo><mo stretchy="false" >(</mo><msub><mi>x</mi><mn>2</mn></msub><mo>,</mo><msub><mi>y</mi><mn>2</mn></msub>><mo stretchy="false" >)</mo></math> when the compensation matrix is applied. To compensate this displacement, we need to find the inverse displacement vector .</p>
+
+<math display="block" eqn-num="10">
+<mo>[</mo><mtable>
+<mtr><mtd><mi>e</mi></mtd></mtr>
+<mtr><mtd><mi>f</mi></mtd></mtr>
+</mtable><mo>]</mo>
+<mo>=</mo>
+<msub><mi>P</mi><mn>1</mn></msub><mo>&minus;</mo><msub><mi>P</mi><mn>2</mn></msub>
+</math>
+
+<p>To find <math><msub><mi>P</mi><mn>2</mn></msub></math>, we apply the comensation matrix <math><msub><mi>M</mi><mi>c</mi></msub></math> to <math><msub><mi>P</mi><mn>1</mn></msub></math></p>
+
+<math display="block">
+<mo>[</mo><mtable>
+	<mtr><mtd><msub><mi>x</mi><mn>2</mn></msub></mtd></mtr>
+	<mtr><mtd><msub><mi>y</mi><mn>2</mn></msub></mtd></mtr>
+</mtable><mo>]</mo>
+<mo>=</mo>
+<mo>[</mo><mtable>
+	<mtr><mtd><mi>a</mi></mtd><mtd><mi>c</mi></mtd></mtr>
+	<mtr><mtd><mi>b</mi></mtd><mtd><mi>d</mi></mtd></mtr>
+</mtable><mo>]</mo>
+<mo>[</mo><mtable>
+	<mtr><mtd><msub><mi>x</mi><mn>1</mn></msub></mtd></mtr>
+	<mtr><mtd><msub><mi>y</mi><mn>1</mn></msub></mtd></mtr>
+</mtable><mo>]</mo>
+<mo>=</mo>
+<mo>[</mo><mtable>
+	<mtr><mtd><mi>a</mi><msub><mi>x</mi><mn>1</mn></msub><mo>+</mo><mi>c</mi><msub><mi>y</mi><mn>1</mn></msub></mtd></mtr>
+	<mtr><mtd><mi>b</mi><msub><mi>x</mi><mn>1</mn></msub><mo>+</mo><mi>d</mi><msub><mi>y</mi><mn>1</mn></msub></mtd></mtr>
+</mtable><mo>]</mo>
+</math>
+
+<p>Inserted into equation <a href="#eqn-10">(10)</a>:</p>
+
+<math display="block">
+<mi>e</mi>
+<mo>=</mo>
+<msub><mi>x</mi><mn>1</mn></msub><mo>&minus;</mo><mo stretchy="false">(</mo><mi>a</mi><msub><mi>x</mi><mn>1</mn></msub><mo>+</mo><mi>c</mi><msub><mi>y</mi><mn>1</mn></msub><mo stretchy="false">)</mo>
+<mo>=</mo>
+<msub><mi>x</mi><mn>1</mn></msub><mo>&minus;</mo><mi>a</mi><msub><mi>x</mi><mn>1</mn></msub><mo>&minus;</mo><mi>c</mi><msub><mi>y</mi><mn>1</mn></msub>
+</math>
+
+<math display="block">
+<mi>f</mi>
+<mo>=</mo>
+<msub><mi>y</mi><mn>1</mn></msub><mo>&minus;</mo><mo stretchy="false">(</mo><mi>b</mi><msub><mi>x</mi><mn>1</mn></msub><mo>+</mo><mi>d</mi><msub><mi>y</mi><mn>1</mn></msub><mo stretchy="false">)</mo>
+<mo>=</mo>
+<msub><mi>y</mi><mn>1</mn></msub><mo>&minus;</mo><mi>b</mi><msub><mi>x</mi><mn>1</mn></msub><mo>&minus;</mo><mi>d</mi><msub><mi>y</mi><mn>1</mn></msub>
+</math>
+
+<p>Grouping the terms:</p>
+
+<math display="block" eqn-num="11">
+<mi>e</mi><mo>=</mo><mrow><mo>(</mo><mn>1</mn><mo>&minus;</mo><mi>a</mi><mo>)</mo></mrow><msub><mi>x</mi><mn>1</mn></msub><mo>&minus;</mo><mi>c</mi><msub><mi>y</mi><mn>1</mn></msub>
+</math>
+
+<math display="block" eqn-num="12">
+<mi>f</mi><mo>=</mo><mrow><mo>(</mo><mn>1</mn></mn><mo>&minus;</mo><mi>d</mi><mo>)</mo></mrow><msub><mi>y</mi><mn>1</mn></msub><mo>&minus;</mo><mi>b</mi><msub><mi>x</mi><mn>1</mn></msub>
+</math>
+
+</div><!--h3--Compensating Translation-->
+
+<p>The result is shown in <a href="demo-05.htm" target="_blank">demo 5</a>:</p>
+
+<iframe id="demo5" src="demo-05.htm" frameborder="0" width="530" height="530"></iframe>
+
+<div id="demo5input" style="margin-left:15px">&eta;: <input name="xangle" type="number" min="-179" max="180" value="10"/> &theta;: <input name="yangle" type="number" min="-179" max="180" value="10"/> <button name="update">Update</button></div>
+
+<script>
+demo5.onload = ( ) => {
+	// Reference input elements
+	const demo = demo5 ;
+	const inputPanel = demo5input ;
+	const xangle=inputPanel.querySelector( "[ name = 'xangle' ]" ) ;
+	const yangle=inputPanel.querySelector( "[ name = 'yangle' ]" ) ;
+	// Get grid configuration
+	const { degree, radian } = demo.contentWindow.getAngleUnits( );
+	const grid = demo.contentWindow.getGridConfiguration( );
+	xangle.value = (grid.xangle * radian).toFixed( 0 ) ;
+	yangle.value = (grid.yangle * radian).toFixed( 0 );
+	inputPanel.querySelector( "[ name = 'update' ]" ).onclick = ( ) => {
+		grid.xangle = xangle.value * degree ;
+		grid.yangle = yangle.value * degree ;
+		demo.contentWindow.updateGridMatrix( );
+		} ;
+	inputPanel.onkeypress = evt => {
+		if ( evt.code === "Enter" ) {
+			inputPanel.querySelector( "[ name = 'update' ]" ).onclick( );
+			}
+		} ;
+	} ;
+</script>
+
+<p>Whenever the axis tilt angles change, the linear transformation matrix of the oblique coordinate system group are changed accordingly. Additionally, a set of new compensation matrix coeffictiens a to f for the undistorted elements must be calculated and distributed to them. </p>
+
+</div><!--h2--Preventing Distortion 2-->
+
+<h2 cbc>Preventing Distortion 3</h2><div>
+
+<p>The idea is to change the positioning method by setting the element's position attributes to zero and add a <tt>transform="matrix( a, b, c, d, x, y )"</tt> attribute:</p>
+
+<pre>
+&lt;text x="0" y="0" transform="matrix(a, b, c, d, x, y )"&gt;tickmark label&lt;/text&gt;
+</pre>
+
+<p>where a to d represent the inverse rotation matrix coefficients.</p>
+
+<p>The element location is now the oblique coordinate system origin, where it is "undistorted", then moved (translated) to the desired location (x,y). This matrix is constructed in two steps. First, the e and f parameters are set up in <tt>drawGrid()</tt> with a <tt>transform="translate(x,y)"</tt> attribute, where x and y are the oblique target coordinates:</p>
+
+<pre>
+function drawGrid ( ) {
+	...
+	points[ 0 ] = x ;
+	points[ 1 ] = y ;
+	const text = createText( <hi>[0, 0]</hi> , ( i / gridConfiguration.xstep ).toFixed( 0 ), 
+		{ compensateDistortion : true , transform: `translate(${ points[ 0 ] },${ points[ 1 ] })` }
+		) ;
+	...
+	compensateDistortion( );
+	}
+</pre>
+
+<p>After creation and later, whenever the oblique coordinate axis angles are changed, <tt>compensateDistortion()</tt> is called:</p>
+
+<pre>
+function updateGridMatrix( ) {
+	setGridMatrix( );
+	<hi>compensateDistortion</hi>( );
+	}
+</pre>
+
+<p>This function creates the compensation matrix coefficients:</p>
+
+<pre>
+function compensateDistortion( ) {
+	const k = Math.sin( 90 * degree - gridConfiguration.xangle + gridConfiguration.yangle );
+	const cs = [   <cc>// rotation compensation matrix coeffitients</cc>
+		Math.cos( gridConfiguration.yangle )/ k ,
+		-Math.sin( gridConfiguration.xangle ) / k , 
+		Math.sin( gridConfiguration.yangle ) / k ,
+		Math.cos( gridConfiguration.xangle ) / k
+		] ;
+</pre>
+
+<p>A loop runs through the elements to be compensated, and initializes/updates the transformation matrix coefficients a to d:</p>
+
+<pre>
+	for ( const e of obliqueCoordinateSystem.querySelectorAll( "[ compensateDistortion ]" )) {
+		const matrix = e.transform.baseVal[0].matrix;
+		matrix.a = cs[ 0 ];
+		matrix.b = cs[ 1 ];
+		matrix.c = cs[ 2 ];
+		matrix.d = cs[ 3 ];
+		}
+</pre>
+
+<p>This leaves the coefficients e and f, which contains the element's position in oblique coordinates, <em>unchanged</em>.</p>
+
+<p><a href="demo-06.htm" target="_blank">Demo 6:</a></p>
+
+<iframe id="demo6" src="demo-06.htm" frameborder="0" width="530" height="530"></iframe>
+
+<div id="demo6input" style="margin-left:15px">&eta;: <input name="xangle" type="number" min="-179" max="180" value="10"/> &theta;: <input name="yangle" type="number" min="-179" max="180" value="10"/> <button name="update">Update</button></div>
+
+<script>
+demo6.onload = ( ) => {
+	// Reference input elements
+	const demo = demo6 ;
+	const inputPanel = demo6input ;
+	const xangle=inputPanel.querySelector( "[ name = 'xangle' ]" ) ;
+	const yangle=inputPanel.querySelector( "[ name = 'yangle' ]" ) ;
+	// Get grid configuration
+	const { degree, radian } = demo.contentWindow.getAngleUnits( );
+	const grid = demo.contentWindow.getGridConfiguration( );
+	xangle.value = (grid.xangle * radian).toFixed( 0 ) ;
+	yangle.value = (grid.yangle * radian).toFixed( 0 );
+	inputPanel.querySelector( "[ name = 'update' ]" ).onclick = ( ) => {
+		grid.xangle = xangle.value * degree ;
+		grid.yangle = yangle.value * degree ;
+		demo.contentWindow.updateGridMatrix( );
+		} ;
+	inputPanel.onkeypress = evt => {
+		if ( evt.code === "Enter" ) {
+			inputPanel.querySelector( "[ name = 'update' ]" ).onclick( );
+			}
+		} ;
+	} ;
+</script>
+
+</div><!--h2--Preventing Distortion 3-->
+
+<h2 cbc>Distance Between Tickmark Labels and Axes</h2><div>
+
+<p>If the axis tilt angles get larger, the distance between tickmark labels and their axis shrinks so much that the label outlines overlap the axes.  </p>
+
+</div><!--h2--Distance Between Tickmark Labels and Axes-->
+
+<hr />
+
+<p>To find the transformation formulas, we start in the oblique system UV and find how to get back to the Cartesian system XY. We define the oblique system with two unit vectors <math><mi>u</mi></math> and <math><mi>v</mi></math>:</p>
+
+<math display="block">
+<mover><mi>u</mi><mo>&Hat;</mo></mover><mo>=</mo><mo>[</mo><mtable>
+	<mtr><mtd><mo>cos</mo><mi>&eta;</mi></mtd></mtr>
+	<mtr><mtd><mo>sin</mo><mi>&eta;</mi></mtd></mtr>
+</mtable><mo>]</mo>
+</math>
+
+<math display="block">
+<mover><mi>v</mi><mo>&Hat;</mo></mover><mo>=</mo><mo>[</mo><mtable>
+	<mtr><mtd><mo>cos</mo><mo stretchy="false">(</mo><mn>90&deg;</mn><mo>+</mo><mi>&theta;</mi><mo stretchy="false">)</mo></mtd></mtr>
+	<mtr><mtd><mo>sin</mo><mo stretchy="false">(</mo><mn>90&deg;</mn><mo>+</mo><mi>&theta;</mi><mo stretchy="false">)</mo></mtd></mtr>
+</mtable><mo>]</mo>
+<mo>=</mo><mo>[</mo><mtable>
+	<mtr><mtd><mo>&minus;sin</mo><mi>&theta;</mi></mtd></mtr>
+	<mtr><mtd><mo>cos</mo><mi>&theta;</mi></mtd></mtr>
+</mtable><mo>]</mo>
+</math>
+
+<p>The point <math><mo>(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo>)</mo></math> in the XY coordinate system is <math><mo>(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo>)</mo></math> in the UV coordinate system is</p>
+
+<math display="block">
+<mrow><mo>[</mo><mtable>
+	<mtr><mtd><mi>x</mi></mtd></mtr>
+	<mtr><mtd><mi>y</mi></mtd></mtr>
+</mtable><mo>]</mo></mrow>
+<mo>=</mo><mi>u</mi><mover><mi>u</mi><mo>&Hat;</mo></mover><mo>+</mo><mi>v</mi><mover><mi>v</mi><mo>&Hat;</mo></mover>
+</math>
+
+<p>This gives us the transformation matrix <math><mi>M</mi></math>:</p>
+
+<math display="block">
+<mi>M</mi><mo>=</mo><mrow><mo>[</mo><mtable><mtr>
+	<mtd><mo>cos</mo><mi>&eta;</mi></mtd>
+	<mtd><mo>&minus;sin</mo><mi>&theta;</mi>
+</mtr><mtr>
+	<mtd><mo>sin</mo><mi>&eta;</mi></mtd>
+	<mtd><mo>cos</mo><mi>&theta;</mi>
+</mtr></mtable><mo>]</mo></mrow>
+</math>
+
+<p>To get from the oblique system to the Cartesian system, we calculate</p>
+
+<math display="block">
+<mrow><mo>[</mo><mtable>
+	<mtr><mtd><mi>x</mi></mtd></mtr>
+	<mtr><mtd><mi>y</mi></mtd></mtr>
+</mtable><mo>]</mo></mrow>
+<mo>=</mo>
+<mi>M</mi><mo></mo><mrow><mo>[</mo><mtable>
+	<mtr><mtd><mi>u</mi></mtd></mtr>
+	<mtr><mtd><mi>v</mi></mtd></mtr>
+</mtable><mo>]</mo></mrow>
+<mo>=</mo>
+<mrow><mo>[</mo><mtable><mtr>
+	<mtd><mo>cos</mo><mi>&eta;</mi></mtd>
+	<mtd><mo>&minus;sin</mo><mi>&theta;</mi>
+</mtr><mtr>
+	<mtd><mo>sin</mo><mi>&eta;</mi></mtd>
+	<mtd><mo>cos</mo><mi>&theta;</mi>
+</mtr></mtable><mo>]</mo></mrow>
+<mo></mo>
+<mrow><mo>[</mo><mtable>
+	<mtr><mtd><mi>u</mi></mtd></mtr>
+	<mtr><mtd><mi>v</mi></mtd></mtr>
+</mtable><mo>]</mo></mrow>
+<mo>=</mo>
+<mrow><mo>[</mo><mtable><mtr>
+	<mtd><mi>u</mi><mo>cos</mo><mi>&eta;</mi><mo>&minus;</mo><mi>v</mi><mo>sin</mo><mi>&theta;</mi></mtd>
+</mtr><mtr>
+	<mtd><mi>u</mi><mo>sin</mo><mi>&eta;</mi><mo>+</mo><mi>v</mi><mo>cos</mo><mi>&theta;</mi></mtd>
+</mtr></mtable><mo>]</mo></mrow>
+</math>
+
+<p>The inverse transformation requires the inverse matrix <math><msup><mi>M</mi><mn>&minus;1</mn></msup></math></p>
+
+
+<h2 cbc>Transformation Matrix</h2><div>
+
+<p>The <tt>transform="matrix(a, b, c, d, e, f)</tt> attribute introduces a transformation matrix of the following form:</p>
+
+<math display="block">
+<mi>M</mi><mo>=</mo>
+<mo>(</mo><mtable class="xxxmatrix"><mtr>
+	<mtd><mi>a</mi></mtd>
+	<mtd><mi>c</mi></mtd>
+	<mtd><mi>e</mi></mtd>
+</mtr><mtr>
+	<mtd><mi>b</mi></mtd>
+	<mtd><mi>d</mi></mtd>
+	<mtd><mi>f</mi></mtd>
+</mtr><mtr>
+	<mtd><mi>0</mi></mtd>
+	<mtd><mi>0</mi></mtd>
+	<mtd><mi>1</mi></mtd>
+</mtr></mtable><mo>)</mo>
+</math>
+
+<p>If <math><mi>&eta;</mi></math> rotates the X axis and <math><mi>&theta;</mi></math> rotates the Y axis, then the matrix is</p>
+
+<math display="block">
+<mi>M</mi><mo>=</mo>
+<mo>(</mo><mtable class="xxxmatrix"><mtr>
+	<mtd><mo>cos</mo><mi>&eta;</mi></mtd>
+	<mtd><mo>&minus;sin</mo><mi>&theta;</mi></mtd>
+	<mtd><mi>e</mi></mtd>
+</mtr><mtr>
+	<mtd><mo>sin</mo><mi>&eta;</mi></mtd>
+	<mtd><mo>cos</mo><mi>&theta;</mi></mtd>
+	<mtd><mi>f</mi></mtd>
+</mtr><mtr>
+	<mtd><mi>0</mi></mtd>
+	<mtd><mi>0</mi></mtd>
+	<mtd><mi>1</mi></mtd>
+</mtr></mtable><mo>)</mo>
+</math>
+
+<p>Therefore, the parameters are</p>
+
+<math display="block">
+<mtable>
+<mtr><mtd><mi>a</mi></mtd><mtd><mo>=</mo></mtd><mtd><mo>cos</mo><mi>&eta;</mi></mtd></mtr>
+<mtr><mtd><mi>b</mi></mtd><mtd><mo>=</mo></mtd><mtd><mo>sin</mo><mi>&eta;</mi></mtd></mtr>
+<mtr><mtd><mi>c</mi></mtd><mtd><mo>=</mo></mtd><mtd><mo>&minus;sin</mo><mi>&theta;</mi></mtd></mtr>
+<mtr><mtd><mi>d</mi></mtd><mtd><mo>=</mo></mtd><mtd><mo>cos</mo><mi>&theta;</mi></mtd></mtr>
+<mtr><mtd><mi>e</mi></mtd><mtd><mo>=</mo></mtd><mtd><mn>0</mn></mtd></mtr>
+<mtr><mtd><mi>f</mi></mtd><mtd><mo>=</mo></mtd><mtd><mn>0</mn></mtd></mtr>
+</mtable>
+</math>
+
+<p>The <a href="demo-02.htm" target="demo-02">demo-02.htm</a> has the r-axis tilted counter-clockwise by the angle &eta; and the s-axis clockwise by the angle &theta;. To get from the coordinates <math><mi>r</mi></math> and <math><mi>s</mi></math> to the coordinates <math><mi>x</mi></math> and <math><mi>y</mi></math> in the orthogonal SVG coordinate system, we have to convert them as follows:</p>
+
+<math display="block">
+<mi>x</mi><mo>=</mo><mi>r</mi><mo>cos</mo><mi>&eta;</mi><mo>&minus;</mo><mi>s</mi><mo>sin</mo><mi>&theta;</mi>
+</math>
+
+<math display="block">
+<mi>y</mi><mo>=</mo><mi>r</mi><mo>sin</mo><mi>&eta;</mi><mo>+</mo><mi>s</mi><mo>cos</mo><mi>&theta;</mi>
+</math>
+
+<p>The <tt>transform()</tt> function implements this mapping and also take the inverted SVG Y axis into account:</p>
+
+<pre>
+function transform( r, s ) {
+	const x = r * Math.cos( eta ) - s * Math.sin( theta );
+	const y = r * Math.sin( eta ) + s * Math.cos( theta );
+	return { x : x , y : &minus;y } ;	
+	}
+</pre>
+
+<p>The function is used to transform the RS coordinates to the SVG XYcoordinates. For example, the Y axis is create as follows:</p>
+
+<pre>
+const p1 = transform( i, -limit );
+const p2 = transform( i, +limit );
+line( p1, p2, color, gridGroup );
+</pre>
+
+<p>Panning can be done in one of two ways:</p>
+
+<ol>
+<li>Pan the viewport (camera): This is what we did in the previous demo. It moves the viewport (window) horizontally and/or vertically over the scene. This can be done by modifying the SVG <tt>viewBox</tt> parameters.</li>
+<li>Pan the coordinates: This pans the viewport parallel to the grid lines. The <tt>viewBox</tt> changes will have to respect the tilt angles of the axes.</li>
+</ol>
+
+<p>Usually, option 1 feels more natural to the user.</p>
+
+</div><!--h2--Transformation Matrix-->
+
+<h2 cbc>Plotting Functions in RS Space</h2><div>
+
+<p>When plotting functions in the non-orthogonal RS space, all points must be converted to the orthogonal XY space:</p>
+
+<pre>
+function plot ( ) {
+	const polyline = document.createElementNS( svgNamespace, "polyline" );
+	const points = [ ] ;
+	for ( let x = -200 ; x < 200 ; x += 2 ) {
+		const p = transform( x, 100 * Math.sin( x / 20 ));  <cc>// demo function</cc>
+		points.push( `${ p.x },${ p.y }` );
+		}
+	polyline.setAttribute( "points" , points.join( " " ));
+	polyline.setAttribute( "fill", "none" );
+	polyline.setAttribute( "stroke", "blue" );
+	polyline.setAttribute( "stroke-width" , "3" );
+	canvas.appendChild( polyline );
+	}
+</pre>
+
+</div><!--h2--Plotting Functions in RS Space-->
+
+<h2 cbc>Using Matrix Transformations</h2><div>
+
+<p>Demo 2 used a user-defined transformation function to convert non-orthogonal RS coordinates to orthogonal SVG XY coordinates. Demo 3 uses the built-in SVG matrix transform function for this purpose.</p>
+
+<p>The matrix function is defined as <tt>matrix( a, b, c, d, e, f )</tt>, which maps to this transformation:</p>
+
+<math display="block">
+<mi>x</mi><mo>=</mo><mi>a</mi><mi>r</mi><mo>+</mo><mi>c</mi><mi>s</mi><mo>+</mo><mi>e</mi>
+</math>
+
+<math display="block">
+<mi>y</mi><mo>=</mo><mi>b</mi><mi>r</mi><mo>+</mo><mi>d</mi><mi>s</mi><mo>+</mo><mi>f</mi>
+</math>
+
+<p>Comparing this with the <tt>transform()</tt> function in Demo 2, we can find that</p>
+
+<math display="block"><mi>a</mi><mo>=</mo><mo>cos</mo><mi>&eta;</mi></math>
+<math display="block"><mi>c</mi><mo>=</mo><mo>&minus;</mo><mo>sin</mo><mi>&theta;</mi></math>
+<math display="block"><mi>b</mi><mo>=</mo><mo>sin</mo><mi>&eta;</mi></math>
+<math display="block"><mi>d</mi><mo>=</mo><mo>cos</mo><mi>&theta;</mi></math>
+<math display="block"><mi>e</mi><mo>=</mo><mi>f</mi><mo>=</mo><mn>0</mn></math>
+
+<p>A different approach looks at where the unit basis vectors <math><mover><mi>r</mi><mo>&rarr;</mo></mover><mo>=</mo><mo>(</mo><mn>1</mn><mo>,</mo><mn>0</mn><mo>)</mo></math> and <math><mover><mo>s</mo><mtext>&rarr;</mtext></mover><mo>=</mo><mo>(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo>)</mo></math> land:</p>
+
+
+
+</div><!--h2--Using Matrix Transformations-->
+
+
+</body></html>
+

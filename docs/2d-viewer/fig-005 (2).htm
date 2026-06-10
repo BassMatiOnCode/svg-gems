@@ -1,0 +1,61 @@
+<!DOCTYPE html />
+<html lang="en"><head>
+<meta charset="utf-8">
+<title>Figure 5: Creating the inverse rotation matrix</title>
+</head><body>
+
+<svg id="svgRoot" width="350" height="350" viewBox="-50 -50 350 350" style="border:1px solid silver" >
+<defs>
+	<style type="text/css">
+		g.points circle { r : 4px }
+		</style>
+	</defs>
+<g id="cartesianSystem" stroke="#ddd" stroke-width="2" fill="none">
+	<circle r="150" stroke="#000" stroke-width="1" stroke-dasharray="8 8"/>
+	<line x1="-50" x2="400" />
+	<line x1="-50" x2="400" y1="150" y2="150" />
+	<line y1="-50" y2="300" />
+	<line x1="150" x2="150" y1="-50" y2="300" />
+	</g>
+<g id="obliqueSystem" stroke="#fbb" stroke-width="2" >
+	<line x1="-55" x2="375" transform="rotate(20)" />
+	<line y1="-50" y2="300" transform="rotate(-20) translate(0,150) rotate(-50)" />
+	<line y1="-50" y2="300" transform="rotate(-20)" />
+	<line y1="-50" y2="300" transform="rotate(20) translate(150,0) rotate(-40)" />
+	</g>
+<g id="points" stroke="none" fill="#888">
+	<circle r="4" transform="rotate(20) translate(150,0)"/>
+	<circle r="4" transform="rotate(-20) translate(0,150)"/>
+	<circle r="4" transform="rotate(20) translate(150,0) rotate(-40) translate(0,150)"/>
+	</g>
+<g stroke="#bbf">
+	
+	</g>
+<g class="points" stroke="none" fill="#888">
+	<circle  />
+	<circle cx="150" />
+	<circle cy="150" />
+	<circle cx="150" cy="150" />
+	</g>
+<g id="annotations" font-size="18" stroke="white" stroke-width="6" paint-order="stroke fill">
+	<g fill="black">
+		</g>
+	</g>
+</svg>
+
+<script type="module">
+const radians = Math.PI / 180 ;
+const eta = 20 * radians ;				// x-axis tilt angle
+const theta = 50 * radians ;			// y-axis tilt angle
+const a = Math.cos( eta );
+const b = Math.sin( eta );
+const c = -Math.sin( theta );
+const d = Math.cos( theta );
+// obliqueSystem.setAttribute( "transform" , `matrix( ${ a }, ${ b }, ${ c }, ${ d }, 0, 0 )` );
+function transform( r, s ) { return { 
+	x : r * a + c * s ,
+	y : r * b + d * s
+	} } ;
+</script>
+
+</body></html>

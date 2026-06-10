@@ -1,0 +1,88 @@
+<html><head>
+<style>
+	g#points circle { r : 4px }
+	</style>
+
+</head><body>
+
+<svg id="svgRoot" width="400" height="340" viewBox="-150 -50 400 340" style="border:1px solid silver" >
+<g id="cartesianSystem" stroke="#ddd" stroke-width="2" >
+	<circle r="200" fill="none" stroke="#888" stroke-width="1" stroke-dasharray="8 8"/>
+	<g name="gridlines" >
+		<line x1="-200" x2="300" /> <!-- x-axis -->
+		<line x1="-200" x2="300" y1="200" y2="200" />
+		<line y1="-75" y2="300" /> <!-- y-axis -->
+		<line y1="-75" y2="300" x1="200" x2="200" />
+	</g>
+	<g name="axes">
+		</g>
+	</g>
+<g id="obliqueSystem" stroke="#fbb" stroke-width="2" >
+	<g name="gridlines" >
+		<line x1="-200" x2="300" />
+		<line x1="-200" x2="350" y1="200" y2="200" />
+		<line y1="-100" y2="300" />
+		<line y1="-175" y2="300" x1="200" x2="200" />
+		</g>
+	</g>
+<g id="points" stroke="none">
+	<g class="normal" fill="#888">
+		<circle />
+		<circle cx="200" />
+		<circle cx="200" cy="200" />
+		<circle cy="200" />
+		</g>
+	<g class="virtual update" fill="#f88">
+		<circle cx="200" />
+		<circle cx="200" cy="200" />
+		<circle cy="200" />
+		</g>
+	</g>
+<g id="annotations" font-size="16" text-anchor="middle" dominant-baseline="central" stroke="white" stroke-width="6" fill="#888" paint-order="stroke fill">
+	<text x="0" y="20"><tspan fill="#f88">(0,0)</tspan> <tspan>(0,0)</tspan></text>
+	<text x="190" y="18">(1,0)</text>
+	<text x="0" y="223">(0,1)</text>
+	<text x="200" y="218">(1,1)</text>
+	<text y="-20">O</text>
+	<text x="200" y="-20">X</text>
+	<text x="0" y="182">Y</text>
+	<text x="150" y="85"><tspan fill="#f88">(1,0)</tspan> <tspan>(0.94,0.34)</tspan></text>
+	<text x="63" y="260"><tspan fill="#f88">(1,1)</tspan> <tspan>(0.44,1.21)</tspan></text>
+	<text x="-65" y="155"><tspan fill="#f88">(0,1)</tspan> <tspan>(-0.5,0.87)</tspan></text>
+	<text x="60" y="7">&eta;</text>
+	<text x="-15" y="60">&theta;</text>
+	</g>
+</svg>
+
+<script type="module">
+const degree = Math.PI / 180 ;
+const theta = 20 * degree ;		// x-axis tilt angle
+const phi = 30 * degree ;			// y-axis tilt angle
+const a = Math.cos( theta );
+const b = Math.sin( theta );
+const c = -Math.sin( phi );
+const d = Math.cos( phi );
+obliqueSystem.setAttribute( "transform" , `matrix( ${ a }, ${ b }, ${ c }, ${ d }, 0, 0 )` );
+function transform( r, s ) { return { 
+	x : r * a + c * s ,
+	y : r * b + d * s
+	} } ;
+// Move objects from virtual to SVG (normal) space
+for ( const o of document.querySelectorAll( "g.virtual *" )) {
+	switch ( o.tagName ) {
+	case "circle" : {
+		const p = transform( o.getAttribute( "cx" ), o.getAttribute( "cy" ));
+		o.setAttribute( "cx", p.x );
+		o.setAttribute( "cy", p.y );
+		break;
+		}
+	case "text" : {
+		const p = transform( o.getAttribute( "x" ), o.getAttribute( "y" ));
+		o.setAttribute( "x", p.x );
+		o.setAttribute( "y", p.y );
+		}
+		}
+	}
+</script>
+
+</body></html>

@@ -1,0 +1,87 @@
+<html><head>
+
+</head><body>
+
+<svg id="svgRoot" width="300" height="300" viewBox="-60 -60 300 300" style="border:1px solid silver" >
+<style>
+	g#points circle { r : 4px }
+	</style>
+<g id="cartesianSystem">
+	<g name="gridlines" stroke="#ddd" stroke-width="2">
+		<line x1="-250" x2="250" />
+		<line x1="-250" x2="250" y1="200" y2="200" />
+		<line y1="-225" y2="250" />
+		<line x1="200" x2="200" y1="-225" y2="250" />
+		</g>
+	<circle id="unitCircle" r="200" fill="none" stroke="#888"  />
+	</g>
+<g id="obliqueSystem" style="display:block" >
+	<g name="gridlines" stroke="#fbb" stroke-width="2" >
+		<line x1="-250" x2="300" />
+		<line x1="-225" x2="225" y1="200" y2="200" />
+		<line y1="-225" y2="350" />
+		<line x1="200" x2="200" y1="-225" y2="225" />
+		</g>
+	</g>
+<g id="points" fill="#666">
+	<circle id="pointO" />
+	<circle id="pointA" cx="200" />
+	<circle id="pointB" />
+	<circle id="pointY" />
+	<circle id="pointX" />
+	</g>
+<g id="annotations" font-size="18" text-anchor="middle" dominant-baseline="central" style="display:block" >
+	<g class="pointLabels" paint-order="stroke fill" stroke="white" stroke-width="8" >
+		<text x="-20" y="0">O</text>
+		<text x="220">A</text>
+		<text x="200" y="85">B</text>
+		<text x="180" y="-18">X</text>
+		<text x="-15" y="85">Y</text>
+		<text x="50" y="12">&theta;</text>
+		</g>
+	</g>
+<g id="supplementLines" stroke-width="1" stroke="#888" >
+	<line id="lineAB" />
+	<line id="lineOA" />
+	<line id="lineOB" />
+	<g id="projectionLines" stroke-dasharray="5 5" >
+		<line id="lineBX" />
+		<line id="lineBY" />
+		</g>
+	</g>
+</svg>
+
+<script type="module">
+const radians = Math.PI / 180 ;
+const theta = 25 * radians ;			// x-axis tilt angle
+const phi = -10 * radians ;			// y-axis tilt angle
+const a = Math.cos( theta );
+const b = Math.sin( theta );
+const c = -Math.sin( phi );
+const d = Math.cos( phi );
+obliqueSystem.setAttribute( "transform" , `matrix( ${ a }, ${ b }, ${ c }, ${ d }, 0, 0 )` );
+pointB.setAttribute( "cx", 200 * Math.cos( theta ));
+pointB.setAttribute( "cy", 200 * Math.sin( theta ));
+pointX.setAttribute( "cx", pointB.getAttribute( "cx" ));
+pointY.setAttribute( "cy", pointB.getAttribute( "cy" ));
+
+lineAB.setAttribute( "x1", pointA.getAttribute( "cx" ));
+lineAB.setAttribute( "x2", pointB.getAttribute( "cx" ));
+lineAB.setAttribute( "y2", pointB.getAttribute( "cy" ));
+
+lineBX.setAttribute( "x1", pointB.getAttribute( "cx" ));
+lineBX.setAttribute( "x2", pointB.getAttribute( "cx" ));
+lineBX.setAttribute( "y1", pointB.getAttribute( "cy" ));
+lineBY.setAttribute( "x1", pointB.getAttribute( "cx" ));
+lineBY.setAttribute( "y1", pointB.getAttribute( "cy" ));
+lineBY.setAttribute( "y2", pointB.getAttribute( "cy" ));
+lineOA.setAttribute( "x2", pointA.getAttribute( "cx" ));
+lineOB.setAttribute( "x2", pointB.getAttribute( "cx" ));
+lineOB.setAttribute( "y2", pointB.getAttribute( "cy" ));
+
+
+/*
+*/
+</script>
+
+</body></html>

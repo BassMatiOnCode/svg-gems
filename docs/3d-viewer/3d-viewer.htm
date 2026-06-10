@@ -1,0 +1,107 @@
+﻿<!DOCTYPE html><html lang="en"><head>
+
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="author" content="USP" />
+<meta name="creation-date" content="2026-05-14" />
+<meta name="editor" content="USP" />
+<meta name="change-date" content="2026-05-14" />
+<meta name="version" content="1" />
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" sizes="all" />
+<xlink rel="stylesheet" href="/spa-iframe-content.css" />
+<link rel="stylesheet" href="/math/styles.css" />
+<title>A 3D funktion viewer based on HTML and SVG</title>
+
+</head><body>
+
+<h1>3D Viewer</h1>
+
+<p>SVG only supports a 2D space, therefore a 3D scene must be <em>projected</em> onto a 2D plane. To render 3D scene on a 2D plane, we need to transform every <math><mo stretchy="false">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo>,</mo><mi>z</mi><mo stretchy="false">)</mo></math> coordinate into a <math><mo stretchy="false">(</mo><msup><mi>x</mi><mo>&prime;</mo></msup><mo>,</mo><msup><mi>y</mi><mo>&prime;</mo></msup><mo stretchy="false">)</mo></math> SVG coordinate. To rotate the scene, we multiply our coordinates by rotation matrices. If we want to rotate around the Y-axis (left/right) and X-axis (up/down), we use these transformations:</p>
+
+<math display="block">
+<msub><mi>R</mi><mi>y</mi></msub><mo stretchy="false">(</mo><mi>&theta;</mi><mo stretchy="false">)</mo><mo>=</mo>
+<mo>[</mo><mtable><mtr>
+	<mtd><mo>cos</mo><mi>&theta;</mi></mtd>
+	<mtd>0</mtd>
+	<mtd><mo>sin</mo><mi>&theta;</mi></mtd>
+</mtr><mtr>
+	<mtd>0</mtd>
+	<mtd>1</mtd>
+	<mtd>0</mtd>
+</mtr><mtr>
+	<mtd><mo>&minus;</mo><mo>sin</mo><mi>&theta;</mi></mtd>
+	<mtd>0</mtd>
+	<mtd><mo>cos</mo><mi>&theta;</mi></mtd>
+</mtr></mtable><mo>]</mo>
+</math>
+
+<math display="block">
+<msub><mi>R</mi><mi>x</mi></msub><mo stretchy="false">(</mo><mi>&phi;</mi><mo stretchy="false">)</mo><mo>=</mo>
+<mo>[</mo><mtable><mtr>
+	<mtd>1</mtd>
+	<mtd>0</mtd>
+	<mtd>0</mtd>
+</mtr><mtr>
+	<mtd>0</mtd>
+	<mtd><mo>cos</mo><mi>&phi;</mi></mtd>
+	<mtd><mo>&minus;</mo><mo>sin</mo><mi>&phi;</mi></mtd>
+</mtr><mtr>
+	<mtd>0</mtd>
+	<mtd><mo>sin</mo><mi>&phi;</mi></mtd>
+	<mtd><mo>cos</mo><mi>&phi;</mi></mtd>
+</mtr></mtable><mo>]</mo>
+</math>
+
+<p>A simple orthographic view ignores the resulting z-coordinates, things don't get smaller in the distance. For a perspective view, we simply divide x and y by z to simulate depth.</p>
+
+<h2 cbc>Implementation Notes</h2><div>
+
+<h3 cbc>State</h3><div>
+
+<p>The <tt>state</tt> variable carries the view state members:</p>
+
+<pre>
+let state = {
+	revX : 0.5 ,	<cc>// Rotation around X</cc>
+	revY : 0.5 ,	<cc>// Rotation around Y</cc>
+	zoom : 1 ,
+	isDragging : false ,
+	lastMouse : { x : 0 , y : 0 }
+	} ;
+</pre>
+
+</div><!--h3--State-->
+
+<h3 cbc>Project()</h3><div>
+
+<pre>
+function project( x, y, z ) {
+	<cc>// Zoom</cc>
+	x *= state.zoom; y *= state.zoom; z *= state.zoom;
+
+	<cc>// Rotate around X</cc>
+	let x1 = x * Math.cos(state.revY) + z * Math.sin(state.revY);
+	let z1 = -x * Math.sin(state.revY) + z * Math.cos(state.revY);
+
+	<cc>// Rotate around Y</cc>
+	let y2 = y * Math.cos(state.revX) - z1 * Math.sin(state.revX);
+	let z2 = y * Math.sin(state.revX) + z1 * Math.cos(state.revX);
+
+	<cc>// Return projection point</cc>
+	return { x : x1 , y : -y2 };   <cc>// SVG Y-axis is inverted</cc>
+	}
+</pre>
+
+</div><!--h3--Project()-->
+
+</div><!--h2--Implementation Notes-->
+
+<h2 cbc>References</h2><div>
+
+<dl>
+<dt><a href="https://gemini.google.com/share/d5030f2da822">Gemini conversation</a></dt>
+</dl>
+
+</div><!--h2--References-->
+
+</body></html>

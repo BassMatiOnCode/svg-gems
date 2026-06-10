@@ -1,0 +1,85 @@
+<html><head>
+
+</head><body>
+
+<svg id="svgRoot" width="300" height="300" viewBox="-10 -30 70 70" style="border:1px solid silver" >
+<style>
+	g#points circle { r : 1.0px }
+	</style>
+<g id="cartesianSystem">
+	<g name="gridlines" stroke="#ddd" stroke-width="1" >
+		<line x1="-75" x2="100" y1="50" y2="50" />
+		<line y1="-75" y2="100" x1="50" x2="50" />
+	</g>
+	<g name="axes" stroke="#ddd" stroke-width="1">
+		<line id="xaxis" x1="-75" x2="100" />
+		<line id="yaxis" y1="-75" y2="100" />
+		</g>
+	<circle id="unitCircle" r="50" fill="none" stroke="#888" stroke-width="0.6" />
+	</g>
+<g id="obliqueSystem">
+	<g name="gridlines" stroke="#fbb" stroke-width="1" >
+		<line id="xaxis" x1="-75" x2="100" y1="50" y2="50" />
+		<line id="xaxis" y1="-75" y2="100" x1="50" x2="50" />
+		</g>
+	<g id="axes" stroke="#fbb" stroke-width="1" fill="none">
+		<line id="xaxis" x1="-75" x2="100" />
+		<line id="yaxis" y1="-75" y2="100" />
+		</g>
+	</g>
+<g id="supplementLines" stroke-width="0.5" stroke="black" >
+	<line id="lineOB" />
+	<line id="lineOR" stroke="none" />
+	<g stroke-dasharray="3 3" >
+		<line id="lineBR" />
+		<line id="lineBS" />
+		</g>
+	</g>
+<g id="points">
+	<circle id="pointA" cx="50" />
+	<circle id="pointB" />
+	<circle id="pointR" />
+	<circle id="pointS" />
+	<circle id="pointO" />
+	</g>
+<g id="annotations" font-size="7" text-anchor="middle" dominant-baseline="central">
+	<g class="pointLabels" paint-order="stroke fill" stroke="white" stroke-width="2" >
+		<text x="-6" y="-2">O</text>
+		<text x="56" y="0">A</text>
+		<text x="45" y="32">B</text>
+		<text x="43" y="-6">R</text>
+		<text x="-4" y="25">S</text>
+		<text x="15" y="4">&theta;</text>
+		</g>
+	</g>
+</svg>
+
+<script type="module">
+const radians = Math.PI / 180 ;
+const theta = 30 * radians ;			// x-axis tilt angle
+const phi = -20 * radians ;			// y-axis tilt angle
+const a = Math.cos( theta );
+const b = Math.sin( theta );
+const c = -Math.sin( phi );
+const d = Math.cos( phi );
+obliqueSystem.setAttribute( "transform" , `matrix( ${ a }, ${ b }, ${ c }, ${ d }, 0, 0 )` );
+pointB.setAttribute( "cx", 50 * Math.cos( theta ));
+pointB.setAttribute( "cy", 50 * Math.sin( theta ));
+pointR.setAttribute( "cx", pointB.getAttribute( "cx" ));
+pointS.setAttribute( "cy", pointB.getAttribute( "cy" ));
+
+lineOB.setAttribute( "x2", pointB.getAttribute( "cx" ));
+lineOB.setAttribute( "y2", pointB.getAttribute( "cy" ));
+lineOR.setAttribute( "x2", pointR.getAttribute( "cx" ));
+lineOR.setAttribute( "y2", pointR.getAttribute( "cy" ));
+lineBR.setAttribute( "x1", pointB.getAttribute( "cx" ));
+lineBR.setAttribute( "y1", pointB.getAttribute( "cy" ));
+lineBR.setAttribute( "x2", pointR.getAttribute( "cx" ));
+lineBR.setAttribute( "y2", pointR.getAttribute( "cy" ));
+lineBS.setAttribute( "y1", pointB.getAttribute( "cy" ));
+lineBS.setAttribute( "y2", pointB.getAttribute( "cy" ));
+lineBS.setAttribute( "x1", pointB.getAttribute( "cx" ));
+
+</script>
+
+</body></html>

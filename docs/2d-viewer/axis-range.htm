@@ -1,0 +1,336 @@
+<!DOCTYPE html><html lang="en"><head>
+
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="author" content="USP" />
+<meta name="creation-date" content="2026-06-02" />
+<meta name="editor" content="USP" />
+<meta name="change-date" content="2026-06-02" />
+<meta name="version" content="1" />
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" sizes="all" />
+<link rel="stylesheet" href="/inc/webcat/math/math-1.css" />
+<link rel="stylesheet" href="/svg-gems/styles.css" />
+<link rel="stylesheet" href="/inc/webcat/numbered-equation/numbered-equation-2.css" />
+<script type="module" src="/inc/webcat/numbered-equation/numbered-equation-2.js"></script>
+<style>
+	input[ type="number" ] { 
+		field-sizing : content ;
+		min-width : 1ch ;
+		max-width : 100% ;
+		border-style : none ;
+		outline : none ;
+		font-family : monospace ;
+		font-size : 120% ;
+		}
+	pre { tab-size : 15px ; margin-left : 10px ; line-height : 1.6 }
+	table, table td, table th { border : 1px solid silver ; padding : 7px ; text-align : center }
+	table { border-collapse : collapse ; margin-left : 20px }
+	td.bt-lr, th.bt-lr { writing-mode : vertical-lr ; transform : rotate(180deg) ; white-space : nowrap }
+	hi { color : darkorange }
+	cc { color : green }
+	math mo.short { margin: -4px }
+	</style>
+
+<title>Axis Range Calculation</title>
+<meta name="description" content="This document describes how the length of a tilted axis is calculated." />
+
+</head><body>
+
+<h1>Axis Range Calculation</h1>
+
+<p>This document describes how the length of a tilted axis is calculated.</p>
+
+<p><a href="fig-009.htm" target="_blank">Figure 9</a> shows an oblique coordinate system with the red x-axis and green  y-axis, an underlying Cartesian system with light grey axes, and an example viewbox with the corners B1 to B4. These corners define the extensions of the oblique coordinate system with the corners D1 to D4.</p>
+
+<iframe src="fig-009.htm" frameborder="0" width="500" height="440"></iframe>
+
+<p>The oblique coordinate system is defined by the angles &eta; and &theta; and a transformation matrix:</p>
+
+<pre>obliqueSystem.setAttribute( "transform", `matrix( 
+	${ Math.cos( eta ) }, 
+	${ Math.sin( eta ) }, 
+	${ -Math.sin( theta ) }, 
+	${ Math.cos( theta )  }, 
+	0, 
+	0 )` ) ;
+</pre>
+
+<p>with &eta; and &theta; in radian units. To find the coordinates of the viewpoint corners in the oblique coordinate system, we use the inverse matrix to transform their Cartesian coordinate into the oblique coordinate system:</p>
+
+<pre>
+const im = obliqueSystem.transform.baseVal[ 0 ].matrix.inverse( );
+const B1 = new DOMPoint( vbox.left, vbox.bottom ).matrixTransform( im );
+const B2 = new DOMPoint( vbox.right, vbox.bottom ).matrixTransform( im );
+const B3 = new DOMPoint( vbox.right, vbox.top ).matrixTransform( im );
+const B4 = new DOMPoint( vbox.left, vbox.top ).matrixTransform( im );
+</pre>
+
+
+<p>The direction of the independent axis determines the viewbox corners that limit the range for the dependent axis. For example, if the x-axis points to the 1st quadrant, B2.y and B4.y provide the limits for the y-axis. If the x-axis points to the 2nd quadrant, the B1.y and B3.y provide these limits.</p>
+
+<p>The following table relates primary axis orientation to corner points:</p>
+
+<style>
+table#t1 > tbody > tr > td:first-child ,
+table#t1 > tbody > tr > td:nth-child( 2 ) { text-align : right }
+</style>
+
+<table id="t1"><thead><tr>
+	<th>Quadrant</th>
+	<th colspan="2">Points</th>
+</tr></thead><tbody><tr>
+	<td>1</td>
+	<td>B2</td>
+	<td>B4</td>
+</tr><tr>
+	<td>2</td>
+	<td>B1</td>
+	<td>B3</td>
+</tr><tr>
+	<td>3</td>
+	<td>B2</td>
+	<td>B4</td>
+</tr><tr>
+	<td>4</td>
+	<td>B1</td>
+	<td>B3</td>
+</tr></tbody></table>
+
+
+<p>The orientation of the secondary axis relates corner points to its min and max values: If the (secondary) y-axis points to the 1st or 2nd quadrants, y-min = B4.y and and y-max = B2.y. If the y-axis points to the 3rd or 4th quadrants, y-min = B2.y and and y-max = B4.y.</p>
+
+<p>All these relationships can be condensed into the following table:</p>
+
+<table id="t-2"><thead><tr>
+	<th rowspan="2" colspan="2"></th>
+	<th colspan="4">Dependent axis</th>
+</tr><tr>
+	<th>Q1</t>
+	<th>Q2</th>
+	<th>Q3</th>
+	<th>Q4</th>
+</tr></thead><tbody><tr>
+	<th rowspan="4" class="bt-lr">Independent axis</th>
+	<th>Q1</th>
+	<td rowspan="2" colspan="2">B4,B2</td>
+	<td rowspan="2" colspan="2">B2,B4</td>
+</tr><tr>
+	<th>Q3</th>
+</tr><tr>
+	<th>Q2</th>
+	<td rowspan="2" colspan="2">B3,B1</td>
+	<td rowspan="2" colspan="2">B1,B3</td>
+</tr><tr>
+	<th>Q4</th>
+</tr></tbody></table>
+
+	
+<p>The qudrant number 0&hellip;3 is returned by the following function:</p>
+
+<pre>
+function quadrant( phi ) {
+	let q = Math.floor( phi / 90 ) % 4 ;
+	return q < 0 ? q += 4 : q ;
+	}
+</pre>
+
+<p>Note that you have to add 90&deg; to &theta; to get the right quadrant number for the y-axis:</p>
+
+<pre>
+qx = quadrant( eta );
+qy = quadrant( theta + 90 );
+</pre>
+
+	
+<p>The range of visible coordinates C<sub>i</sub> are defined by these corner points B<sub>i</sub>:</p>
+
+<pre>
+C1.x = B1.x ;
+C2.y = B2.y ;
+C3.x = B3.x ;
+C4.y = B4.y ;
+C1.y = C2.x = C3.y = C4.x = 0 ;
+</pre>
+	
+
+<h2 cbc>Range End Points</h2><div>
+
+<p>As already mentioned, the viewbox rectangle in combination with the axis angles &eta; and &theta; defines the visible coordinate range for the axes. This is shown for the x-axis in <a href="figure-010.htm" target="_blank">Figure 10</a>.  The y-axis orientation selects the points B1 and B2 as construction points for the lower and upper limits for the x-axis.</p>
+
+<iframe src="fig-010.htm" frameborder="0" width="410" height="310"></iframe>
+
+<p>In general:</p>
+
+<style>
+table#t1 > tbody > tr > td:first-child ,
+table#t1 > tbody > tr > td:nth-child( 2 ) { text-align : right }
+</style>
+<table id="t1"><thead><tr>
+	<th colspan="2">Angle range</th>
+	<th>Quadrant</th>
+	<th colspan="2">Corners</th>
+</tr></thead><tbody><tr>
+	<td>0</td>
+	<td>90</td>
+	<td>1</td>
+	<td>top left</td>
+	<td>lower right</td>
+</tr><tr>
+	<td>90</td>
+	<td>180</td>
+	<td>2</td>
+	<td>top right</td>
+	<td>lower left</td>
+</tr><tr>
+	<td>180</td>
+	<td>270</td>
+	<td>3</td>
+	<td>bottom right</td>
+	<td>upper left</td>
+</tr><tr>
+	<td>270</td>
+	<td>360</td>
+	<td>4</td>
+	<td>bottom left</td>
+	<td>upper right</td>
+</tr></tbody></table>
+
+<p>The qudrant number 0&hellip;3 is returned by the following function:</p>
+
+<pre>
+function quadrant( phi ) {
+	let q = Math.floor( phi / 90 ) % 4 ;
+	return q < 0 ? q += 4 : q ;
+	}
+</pre>
+
+<p>For example, </p>
+
+<p style="margin-left:10px">if  <math><mn>0</mn><mo>&le;</mo><mi>&phi;</mi><mo>&lt;</mo><mn>90</mn></math>, the quadrant is 0
+<br />if  <math><mn>360</mn><mo>&le;</mo><mi>&phi;</mi><mo>&lt;</mo><mn>450</mn></math>, the quadrant is 3
+<br />if  <math><mn>0</mn><mo>&gt;</mo><mi>&phi;</mi><mo>&ge;</mo><mn>-90</mn></math>, the quadrant is 3.</p>
+
+<p>The x-axis direction defines on which sides D1 and D2 go. D2 goes to the side to which the x-axis points to, D1 goes to the opposite side. More specifically, the angle between the x and y-axes:</p>
+
+<math display="block">
+<mi>&delta;</mi><mo>=</mo><mo>(</mo><mn>90&deg;</mn><mo>+</mo><mi>&theta;</mi><mo>&minus;</mo><mi>&eta;</mi><mo>)</mo><mo>mod</mo><mn>360&deg;</mn>
+</math>
+
+<p>If <math><mi>&delta;</mi><mo>&gt;</mo><mn>180&deg;</mn></math>, then D1 and D2 must be swapped.</p>
+
+</div><!--h2--Range End Points-->
+
+<h2 cbc>Using Trigonometry</h2><div>
+
+<p>Let's add some more details to the diagram <a href="fig-012.htm" target="_blank" >figure 12</a>:</p>
+
+<iframe src="fig-012.htm" frameborder="0" width="380" height="400"></iframe>
+
+<p>Depending on the angle <math><mi>&theta;</mi></math>, the point <math><mtext>B</mtext></math> designates different corners of the viewbox. In this case, where the y-axis points down right into the first SVG quadrant and <math><mn>&minus;90&deg;</mn><mo>&gt;</mo><mi>&theta;</mi><mo>&le;</mo><mn>0&deg;</mn></math>, it is the upper right corner. In general:</p>
+
+
+<p>the segment <math><mtext class="overline">BD</mtext></math> is parallel to the oblique y-axis, and represents the largest visible x-coordinate in the oblique system. To find the point <math><mtext>D</mtext></math>, we draw a parallel to the oblique y-axis through point A to the intersection with the obliqe x-axis.</p>
+
+<p>Then we can express the segment <math><mtext class="overline">BA</mtext><mo>=</mo><mtext class="overline">BD</mtext><mo>&minus;</mo><mtext class="overline">DA</mtext></math>.</p>
+
+<p>Step 1 finds the length of <math><mi>c</mi><mo>=</mo><mtext class="overline">BA</mtext></math> in the triangle <math><mtext>ABC</mtext></math>, which has a right angle at the corner <math><mtext>C</mtext></math>. The length of the sides <math><mi>a</mi></math> and <math><mi>b</mi></math> can be derived from the SVG viewbox properties x, y, width and height:</p>
+
+<math display="block">
+<mi>C</mi><mo>=</mo><mo stretchy="false">(</mo><mtext>viewbox.x</mtext><mo>+</mo><mtext>viewbox.width</mtext><mo>,</mo><mn>0</mn><mo stretchy="false">)</mo>
+</math>
+
+<math display="block">
+<mi>D</mi><mo>=</mo><mo stretchy="false">(</mo><mtext>viewbox.x</mtext><mo>+</mo><mtext>viewbox.width</mtext><mo>,</mo><mtext>&minus;viewbox.y</mtext><mo stretchy="false">)</mo>
+</math>
+
+<p>Then we can apply the Pythagorean theorem and get</p>
+
+<math display="block">
+<mi>c</mi><mo>=</mo><msqrt><msup><mi>a</mi><mn>2</mn></msup><mo>+</mo><msup><mi>b</mi><mn>2</mn></msup></msqrt>
+</math>
+
+<p>Now we can focus on the triangle <math><mtext>ABD</mtext></math> to find its sides <math><mi>e</mi></math> and <math><mi>f</mi></math>. There is no right angle inside, so we must use the rule of sines:</p>
+
+<math display="block">
+<mfrac><mrow><mo>sin</mo><mi>&delta;</mi></mrow><mrow><mi>c</mi></mrow></mfrac>
+<mo>=</mo>
+<mfrac><mrow><mo>sin</mo><mi>&epsilon;</mi></mrow><mrow><mi>e</mi></mrow></mfrac>
+<mo>=</mo>
+<mfrac><mrow><mo>sin</mo><mi>&phi;</mi></mrow><mrow><mi>f</mi></mrow></mfrac>
+</math>
+
+<p>Since <math><mi>c</mi></math> is known, we can solve for <math><mi>e</mi></math> and <math><mi>f</mi></math>:</p>
+
+<math display="block" eqn-num="1">
+<mi>e</mi><mo>=</mo><mfrac>
+<mrow><mi>c</mi><mo>sin</mo><mi>&epsilon;</mi></mrow>
+<mrow><mo>sin</mo><mi>&delta;</mi></mrow>
+</mfrac>
+</math>
+
+<math display="block" eqn-num="2">
+<mi>f</mi><mo>=</mo><mfrac>
+<mrow><mi>c</mi><mo>sin</mo><mi>&phi;</mi></mrow>
+<mrow><mo>sin</mo><mi>&delta;</mi></mrow>
+</mfrac>
+</math>
+
+<p>The angle <math><mi>&delta;</mi></math> can be obtained from the axis rotation angels. We can see at the origin that</p>
+
+<math display="block">
+<mi>&delta;</mi>
+<mo>=</mo><mn>90&deg;</mn><mo>&minus;</mo><mi>&eta;</mi><mo stretchy="false">&minus;</mo><mo stretchy="false">(</mo><mo>&minus;</mo><mi>&theta;</mi><mo>)</mo>
+<mo>=</mo><mn>90&deg;</mn><mo>&minus;</mo><mi>&eta;</mi><mo>+</mo><mi>&theta;</mi>
+<mo>=</mo><mo>cos</mo><mo stretchy="false">(</mo><mi>&theta;</mi><mo>&minus;</mo><mi>&eta;</mi><mo stretchy="false">)</mo>
+</math>
+
+<p>Note that the angle &theta; is drawn counter-clockwise in figure 9, so it is a negative value, and thus we must <em>add</em> <math><mi>&theta;</mi></math>, not subtract.</p>
+
+<p>The angle <math><mi>&epsilon;</mi></math> lies opposite to the side <math><mi>e</mi></math> and can be calculated as</p>
+
+<math display="block">
+<mi>&epsilon;</mi><mo>=</mo><mi>&beta;</mi><mo>+</mo><mo stretchy="false">(</mo><mo>&minus;</mo><mi>&theta;</mi><mo stretchy="false">)</mo>
+<mo>=</mo>
+<mi>&beta;</mi><mo>&minus;</mo><mi>&theta;</mi>
+<mo>=</mo>
+<mo>atan</mo><mfrac><mi>b</mi><mi>a</mi></mfrac><mo>&minus;</mo><mi>&theta;</mi>
+</math>
+
+<p>Similarly, the angle <math><mi>&phi;</mi></math> lies opposite to the side <math><mi>f</mi></math> and can be calculated as</p>
+
+<math display="block">
+<mi>&phi;</mi><mo>=</mo><mi>&alpha;</mi><mo>+</mo><mi>&eta;</mi>
+<mo>=</mo><mo>atan</mo><mfrac><mi>a</mi><mi>b</mi></mfrac><mo>+</mo><mi>&eta;</mi>
+</math>
+
+<p>Injected into equations <a href="eqn-1">(1)</a> and <a href="eqn-2">(2)</a>, we get</p>
+
+
+<math display="block" eqn-num="3">
+<mi>e</mi><mo>=</mo><mfrac><mrow>
+	<mi>c</mi><mo rspace="0">sin</mo><mo>(</mo><mo lspace="0">atan</mo><mfrac><mi>b</mi><mi>a</mi></mfrac><mo>&minus;</mo><mi>&theta;</mi><mo>)</mo>
+</mrow><mrow>
+	<mo rspace="0">cos</mo><mo>(</mo><mi>&theta;</mi><mo>&minus;</mo><mi>&eta;</mi><mo>)</mo>
+</mrow></mfrac>
+</math>
+
+<math display="block" eqn-num="4">
+<mi>f</mi><mo>=</mo><mfrac><mrow>
+	<mi>c</mi><mo rspace="0">sin</mo><mo>(</mo><mo lspace="0">atan</mo><mfrac><mi>a</mi><mi>b</mi></mfrac><mo>+</mo><mi>&eta;</mi><mo>)</mo>
+</mrow><mrow>
+	<mo rspace="0">cos</mo><mo>(</mo><mi>&theta;</mi><mo>&minus;</mo><mi>&eta;</mi><mo>)</mo>
+</mrow></mfrac>
+</math>
+
+<p>Since we are only interested in the length of the length of the x-axis, equation (3) is the solution, the value of <math><mi>e</mi></math> is rounded up to the next higher step value.</p>
+
+</div><!--h2--Using Trigonometry-->
+
+<h2 cbc>Using Inverse Transformations</h2><div>
+
+<p></p>
+
+</div><!--h2--Using Inverse Transformations-->
+
+</body></html>
+

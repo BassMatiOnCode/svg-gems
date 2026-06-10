@@ -1,0 +1,149 @@
+<!DOCTYPE html />
+<html lang="en"><head>
+<meta charset="utf-8">
+<title>Figure 8: v-axis extension</title>
+</head><body>
+
+<svg id="svgRoot" width="500" height="500" viewBox="-250 -250 500 500" style="border:1px solid silver" >
+<defs>
+	<style type="text/css">
+		g#points circle { r : 4px }
+		</style>
+	</defs>
+<g id="cartesianSystem" stroke="#ddd" stroke-width="2" fill="none">
+	<rect x="-200" y="-200" width="400" height="400" />
+	<line x1="-250" x2="250" /><!-- x-axis -->
+	<line y1="-250" y2="250" /><!-- y-axis -->
+	</g>
+<g id="obliqueSystem" stroke="#fbb" stroke-width="2" >
+	<line x1="-250" x2="250" /><!-- x-axis -->
+	<line y1="-250" y2="250" /><!-- y-axis -->
+	</g>
+<g id="points" stroke="none" fill="#888">
+	<circle  /><!-- origin -->
+	<circle cx="-200" />
+	</g>
+<g id="annotations" font-size="18" stroke="white" stroke-width="6" paint-order="stroke fill" text-anchor="middle" dominant-baseline="central" >
+	<text x="55" y="6">&eta;</text>
+	<text x="-13" y="45">&theta;</text>
+	<text x="-200" y="20" >A</text>
+	<text x="-200" y="-90">B</text>
+	</g>
+</svg>
+
+<script>
+const svgNamespace = "http://www.w3.org/2000/svg" ;
+const degree = Math.PI / 180 ;
+const radian = 180 / Math.PI ;
+function getAngleUnits ( ) { 
+	return { degree : degree, radian : radian } ;
+	}
+const gridConfiguration = {
+	x : {												// x-gridConfiguration properties
+		eta : 20 * degree			,			// tilt angle from horizontal
+		min : -200 ,								// leftmost grid line
+		max : +200 ,							// rightmost grid line
+		scale : 50									// distance between grid lines
+		} ,
+	y : {												// y-gridConfiguration properties
+		theta: -20 * degree ,				// tilt angle from vertical
+		min : -200 ,								// topmost grid line
+		max : +200 ,							// bottommost grid line
+		scale : 50									// distance between grid lines
+		} ,
+	matrix : obliqueSystem.ownerSVGElement.createSVGMatrix( ) ,
+	inverseMatrix : obliqueSystem.ownerSVGElement.createSVGMatrix( )
+	} ;
+function getGridConfiguration( ) { 
+	return gridConfiguration ;
+	}
+function setElementAttributes( e, attributes = { } ) {
+	for ( const [ key, value ] of Object.entries( attributes )) {
+		if ( typeof value === "boolean" ) e.toggleAttribute( key, value ) ;
+		else e.setAttribute( key, value );
+		}
+	}
+function createLine( points = [ ], attributes = { } ) {
+	const line = document.createElementNS( svgNamespace, "line" );
+	attributes.x1 = points[ 0 ]; attributes.y1 = points[ 1 ];
+	attributes.x2 = points[ 2 ]; attributes.y2 = points[ 3 ];
+	setElementAttributes( line, attributes );
+	return line ;
+	}
+function createText( points = [ ], text = "", attributes = { } ) {
+	const o = document.createElementNS( svgNamespace, "text" );
+	o.textContent = text ;
+	if ( points.length > 0 ) { 
+		attributes.x = points[ 0 ] ;
+		attributes.y = points[ 1 ] ;
+		}
+	setElementAttributes( o, attributes );
+	return o ;
+	}
+function updateGridMatrix( eta=gridConfiguration.x.eta, theta=gridConfiguration.y.theta ) {
+	// Save angles for later retrieval
+	gridConfiguration.x.eta = eta ;
+	gridConfiguration.y.theta = theta ;
+	// Setup/update tranformation matrix
+	const matrix = gridConfiguration.matrix ;
+	matrix.a = Math.cos( eta );
+	matrix.b = Math.sin( eta );
+	matrix.c = -Math.sin( theta );
+	matrix.d = Math.cos( theta );
+	matrix.e = 0 ;
+	matrix.f = 0 ;
+	// Setup/update inverse tranformation matrix
+	const inverseMatrix = 	gridConfiguration.inverseMatrix
+	const k = Math.cos( theta - eta );
+	inverseMatrix.a = matrix.d / k ;
+	inverseMatrix.b = matrix.b / k ;
+	inverseMatrix.c = -matrix.c / k ;
+	inverseMatrix.d = matrix.a / k ;
+	}
+function transform( u, v ) { return { 
+	x : gridConfiguration.matrix.a * u  + gridConfiguration.matrix.c * v ,
+	y : gridConfiguration.matrix.b * u  + gridConfiguration.matrix.d * v
+	} } ;
+function inverse( x, y ) { return {
+	u : inverseGridConfiguration.matrix.a * x + inverseGridConfiguration.matrix.c * y ,
+	v : inverseGridConfiguration.matrix.b * x + inverseGridConfiguration.matrix.d * y
+	}	}
+function createGrid ( ) {
+	// Initializes the oblique coordinate system
+	updateGridMatrix( );
+	let transform = obliqueSystem.ownerSVGElement.createSVGTransormFromMatrix( matrix );
+	obliqueSystem.transform.baseVal.initialize( transform );
+	//	obliqueCoordinateSystem.setAttribute( "transform" , `matrix( ${ a }, ${ b }, ${ c }, ${ d }, ${ e }, ${ f } )` );
+/*
+	for ( let i = 0 ; i <= 300 ; i += 150 ) {
+		const line = document.createElementNS( svgNamespace , "line" );
+		line.setAttribute( "x1" , i );
+		line.setAttribute( "x2", i );
+		line.setAttribute( "y1" , -50 );
+		line.setAttribute( "y2", 200 );
+		obliqueSystem.append( line );
+		}
+	for ( let i = 0 ; i <= 300 ; i += 150 ) {
+		const line = document.createElementNS( svgNamespace , "line" );
+		line.setAttribute( "y1" , i );
+		line.setAttribute( "y2", i );
+		line.setAttribute( "x1" , -50 + i * Math.sin( theta ));
+		line.setAttribute( "x2", 200 );
+		obliqueSystem.append( line );
+		}
+	const circle = document.createElementNS( svgNamespace , "circle" );
+	circle.setAttribute( "cx" , -150 * Math.sin( theta )) ;
+	circle.setAttribute( "cy" , 150 * Math.cos( theta )) ; 
+	circle.setAttribute( "r" , 5 );
+	circle.setAttribute( "fill" , "black" );
+	cartesianSystem.append( circle );
+	*/
+	}
+createGrid( );
+let point = document.createElementNS( svgNamespace, "circle" );
+point.setAttribute( "cx" , "-200" );
+point.setAttribute( "cy", -200 * Math.tan( eta ));
+points.append( point );
+</script>
+
+</body></html>

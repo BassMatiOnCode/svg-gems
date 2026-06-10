@@ -1,0 +1,85 @@
+<html><head>
+
+</head><body>
+<div id="container" style="width: 100vw; height: 100vh; overflow: hidden; background: #1a1a1a;">
+	<svg id="viewport" width="100%" height="100%" viewBox="-400 -400 800 800">
+		<g id="grid-group"></g>
+		<g id="axis-group"></g>
+		</svg>
+	</div>
+
+<script>
+const svg = document.getElementById('viewport');
+const gridGroup = document.getElementById('grid-group');
+const axisGroup = document.getElementById('axis-group');
+
+let state = {
+    revX: 0.5, // Rotation around X
+    revY: 0.5, // Rotation around Y
+    zoom: 1,
+    isDragging: false,
+    lastMouse: { x: 0, y: 0 }
+};
+
+// 3D to 2D Projection Function
+function project(x, y, z) {
+    // 1. Apply Zoom
+    x *= state.zoom; y *= state.zoom; z *= state.zoom;
+
+    // 2. Rotate around Y axis
+    let x1 = x * Math.cos(state.revY) + z * Math.sin(state.revY);
+    let z1 = -x * Math.sin(state.revY) + z * Math.cos(state.revY);
+
+    // 3. Rotate around X axis
+    let y2 = y * Math.cos(state.revX) - z1 * Math.sin(state.revX);
+    let z2 = y * Math.sin(state.revX) + z1 * Math.cos(state.revX);
+
+    return { x: x1, y: -y2 }; // SVG Y-axis is inverted
+}
+
+function draw() {
+    gridGroup.innerHTML = '';
+    axisGroup.innerHTML = '';
+
+    const size = 200;
+    const step = 40;
+
+    // --- Draw Grids (XY, XZ, YZ planes) ---
+    for (let i = -size; i <= size; i += step) {
+        // Simple example: Grid on the XZ plane (y=0)
+        line(project(i, 0, -size), project(i, 0, size), '#444', gridGroup);
+        line(project(-size, 0, i), project(size, 0, i), '#444', gridGroup);
+    }
+
+    // --- Draw Axes ---
+    line(project(0,0,0), project(size,0,0), 'red', axisGroup);   // X
+    line(project(0,0,0), project(0,size,0), 'green', axisGroup); // Y
+    line(project(0,0,0), project(0,0,size), 'blue', axisGroup);  // Z
+}
+
+function line(p1, p2, color, parent) {
+    const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    l.setAttribute("x1", p1.x); l.setAttribute("y1", p1.y);
+    l.setAttribute("x2", p2.x); l.setAttribute("y2", p2.y);
+    l.setAttribute("stroke", color);
+    parent.appendChild(l);
+}
+
+// --- Interaction Handlers ---
+window.addEventListener('mousedown', e => { state.isDragging = true; });
+window.addEventListener('mouseup', () => { state.isDragging = false; });
+window.addEventListener('mousemove', e => {
+    if (!state.isDragging) return;
+    state.revY += e.movementX * 0.01;
+    state.revX += e.movementY * 0.01;
+    draw();
+});
+
+window.addEventListener('wheel', e => {
+    state.zoom *= e.deltaY > 0 ? 0.9 : 1.1;
+    draw();
+});
+
+draw(); // Initial Render
+</script>
+</body></html>

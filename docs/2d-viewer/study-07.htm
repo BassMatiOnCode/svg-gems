@@ -1,0 +1,27 @@
+﻿<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" sizes="all" />
+<title>Study 7: Referencing external transformation matrix</title>
+<meta name="description" content="The transformation matrix of an element is read-only." />
+</head><body>
+
+<svg id="svgRoot" width="500" height="500" viewBox="-250 -250 500 500" style="border:1px solid silver">
+<rect id="theRectangle" x="-120" y="-80" width="240" height="160" fill="none" stroke="black" transform="matrix(1, 0, 0, 1, 0, 0)" />
+</svg>
+
+<script type="module">
+debugger;
+let eta = 20 , theta = -20 ;
+export const matrix = new DOMMatrix ( [
+	Math.cos( eta / 180 * Math.PI ) ,
+	Math.sin( eta / 180 * Math.PI ) ,
+	-Math.sin( theta / 180 * Math.PI ) ,
+	Math.cos( theta / 180 * Math.PI ) ,
+	0, 0 ] ) ;
+theRectangle.matrixTransform( matrix );
+export function setGridAngles( eta, theta ) {
+	debugger ;
+	}
+</script>
+</body></html>

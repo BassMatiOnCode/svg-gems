@@ -1,0 +1,92 @@
+<!DOCTYPE html />
+<html lang="en"><head>
+<meta charset="utf-8">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" sizes="all" />
+<title>Figure 10: Axis Length Calculation</title>
+</head><body>
+
+<svg id="svgRoot" width="340" height="290" viewBox="-130 -140 340 290" style="border:1px solid silver" >
+<defs>
+	<style type="text/css">
+		g#points circle { r : 4px }
+		</style>
+	<marker id="axis-arrow" orient="auto-start-reverse" markerUnits="userSpaceOnUse" markerHeight="8" markerWidth="20" refX="20" refY="4">
+		<path fill="context-stroke" stroke="none" stroke-width="0" d="M 20 4 L 0 0 V 8" />
+		</marker>
+	</defs>
+<g id="cartesianSystem" stroke="#ddd" stroke-width="1" fill="none">
+	<rect x="-100" y="-100" width="200" height="200" stroke-width="1" />
+	<line x1="-130" x2="200" marker-end="url(#axis-arrow)" /><!--x-axis-->
+	<line y1="-130" y2="140" marker-end="url(#axis-arrow)" /><!--y-axis-->
+	</g>
+<g id="obliqueSystem" stroke="#666" stroke-width="1" >
+	<line id="xAxis" x1="-130" x2="215" stroke="red" marker-end="url(#axis-arrow)" />
+	<line id="yAxis" y1="-130" y2="150" stroke="green" marker-end="url(#axis-arrow)" />
+	<g id="undistortedElements" stroke="none" >
+		<g id="points" fill="#888"></g>
+		<g id="annotations" font-size="18" stroke="white" fill="black" stroke-width="6" paint-order="stroke fill" text-anchor="middle" dominant-baseline="central" ></g>
+		</g>
+	</g>
+<g id="points" stroke="none" fill="#888">
+	<circle /><!-- origin -->
+	</g>
+<g id="annotations" font-size="18" stroke="white" stroke-width="6" paint-order="stroke fill" text-anchor="middle" dominant-baseline="central" >
+	<text x="60" y="8">&eta;</text>
+	<text x="12" y="70">&minus;&theta;</text>
+	<text x="-15" y="15">A</text>
+	<text x="113" y="-113">B</text>
+	</g>
+</svg>
+
+<script>
+const svgNamespace = "http://www.w3.org/2000/svg" ;
+const degree = Math.PI / 180 ;
+const eta = 20 * degree ;
+const theta = -20 * degree ;
+obliqueSystem.setAttribute( "transform", `matrix( ${ Math.cos( eta ) }, ${ Math.sin( eta ) }, ${ -Math.sin( theta ) }, ${ Math.cos( theta )  }, 0, 0 )` );
+const matrix = obliqueSystem.transform.baseVal[ 0 ].matrix;
+function inverse( points = [ ] ) { 
+	const result = [ ] ;
+	const im = obliqueSystem.transform.baseVal[ 0 ].matrix.inverse( );
+	for ( let i = 0 ; i < points.length ; i += 2 ) {
+		const point = new DOMPoint( points[ i ], points[ i + 1 ] || 0 ).matrixTransform( im );
+		result.push( point.x, point.y ) ;
+		}
+	return result ;
+	}
+function initUndistortedElements ( ) {
+	const transform = svgRoot.createSVGTransform( );
+	transform.setMatrix( obliqueSystem.transform.baseVal[ 0 ].matrix.inverse( ) ) ;
+	for ( const e of undistortedElements.querySelectorAll("*") ) {
+		if ( e.tagName === "g" ) continue ;
+		e.transform.baseVal.appendItem( transform );
+		}
+	}
+// create elements in the oblique coordinate system
+const pointA = inverse( [ 100, -100 ] );
+let line = document.createElementNS( svgRoot.namespaceURI, "line" );
+line.setAttribute( "x1", pointA[ 0 ] );
+line.setAttribute( "y1", pointA[ 1 ] - 30 );
+line.setAttribute( "x2", pointA[ 0 ] );
+line.setAttribute( "y2", + 30 );
+line.setAttribute( "stroke" , "green" );
+obliqueSystem.append( line );
+// Create elements in the undistorted elements group in the oblique coordinate system
+const undistortedPoints = obliqueSystem.querySelector( "#undistortedElements > #points" );
+const undistortedText = obliqueSystem.querySelector( "#undistortedElements > #annotations" );
+console.log( points );
+let circle = document.createElementNS( svgRoot.namespaceURI, "circle" );
+circle.setAttribute( "transform", `translate(${ pointA[ 0 ] },${ pointA[ 1 ] })` ) ;
+undistortedPoints.append( circle );
+circle = document.createElementNS( svgRoot.namespaceURI, "circle" );
+circle.setAttribute( "transform", `translate(${ pointA[ 0 ] }, 0)` );
+undistortedPoints.append( circle );
+let text = document.createElementNS( svgRoot.namespaceURI, "text" );
+text.setAttribute( "transform", `translate(${ pointA[ 0 ] + 20 }, -20 )` );
+text.textContent = "D" ;
+undistortedText.append( text );
+// Add inverse transformation matrix to undistorted elements
+initUndistortedElements( );
+</script>
+
+</body></html>

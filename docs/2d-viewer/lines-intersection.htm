@@ -1,0 +1,388 @@
+<!DOCTYPE html><html lang="en"><head>
+
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="author" content="USP" />
+<meta name="creation-date" content="2026-05-06" />
+<meta name="editor" content="USP" />
+<meta name="change-date" content="2026-05-01" />
+<meta name="version" content="1" />
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" sizes="all" />
+<link rel="stylesheet" href="/inc/webcat/math/math-1.css" />
+<link rel="stylesheet" href="/svg-gems/styles.css" />
+<link rel="stylesheet" href="/svg-gems/styles.css" />
+<link rel="stylesheet" href="/inc/webcat/numbered-equation/numbered-equation-2.css" />
+<script type="module" src="/inc/webcat/numbered-equation/numbered-equation-2.js"></script>
+<style>
+	input[ type="number" ] { 
+		field-sizing : content ;
+		min-width : 1ch ;
+		max-width : 100% ;
+		border-style : none ;
+		outline : none ;
+		font-family : monospace ;
+		font-size : 120% ;
+		}
+	pre { tab-size : 15px }
+	hi { color : darkorange }
+	cc { color : green }
+	math mo.short { margin: -4px }
+	</style>
+
+<title>Intersection of Line Segments</title>
+
+</head><body>
+
+<h1>Intersection of Line Segments</h1>
+
+<p>A line segment <math><msub><mi>L</mi><mn>1</mn></msub></math> between the points <math><msub><mi>P</mi><mn>11</mn></msub></math> and <math><msub><mi>P</mi><mn>12</mn></msub></math> is define by two vectors:</p>
+
+<math display="block">
+<msub><mi>L</mi><mn>1</mn></msub>
+<mo>=</mo>
+<msub><mover><mi>p</mi><mo>&RightVector;</mo></mover><mn>12</mn></msub>
+<mo>&minus;</mo>
+<msub><mover><mi>p</mi><mo>&RightVector;</mo></mover><mn>11</mn></msub>
+</math>
+
+<p>with <math><mover><mi>p</mi><mo>&RightVector;</mo></mover><mo>=</mo><mrow class="overline"><mi>O</mi><mi>P</mi></mrow></math>, <math><mi>O</mi><mo class="short">=</mo><mo stretchy="false">(</mo><mn>0</mn><mo>,</mo><mn>0</mn><mo stretchy="false">)</mo></math> the origin of the coordinate system, and <math><mi>P</mi><mo class="short">=</mo><mo stretchy="false">(</mo><msub><mi>x</mi><mi>p</mi></msub><mo>,</mo><msub><mi>y</mi><mi>p</mi></msub><mo stretchy="false">)</mo></math> a point with its coordinates. Any point on this line segment can be expressed as a function of the factor <math><mi>k</mi><mo>&isin;</mo><mi>&Ropf;</mi></math>:</p>
+
+<math display="block">
+<msub><mi>P</mi><mn>1</mn></msub>
+<mo>=</mo>
+<msub><mover><mi>p</mi><mo>&RightVector;</mo></mover><mn>11</mn></msub>
+<mo>+</mo>
+<msub><mi>k</mi><mn>1</mn></msub>
+<mo>(</mo>
+<msub><mover><mi>p</mi><mo>&RightVector;</mo></mover><mn>12</mn></msub>
+<mo>&minus;</mo>
+<msub><mover><mi>p</mi><mo>&RightVector;</mo></mover><mn>11</mn></msub>
+<mo>)</mo>
+</math>
+
+<p>with <math><mn>0</mn><mo>&le;</mo><msub><mi>k</mi><mn>1</mn></msub><mo>&le;</mo><mn>1</mn></math>. If two lines <math><msub><mi>L</mi><mn>1</mn></msub></math>, <math><msub><mi>L</mi><mn>2</mn></msub></math> intersect, they have a point in common:</p>
+
+<math display="block">
+<msub><mi>P</mi><mn>1</mn></msub>
+<mo>=</mo>
+<msub><mi>P</mi><mn>2</mn></msub>
+</math>
+
+<math display="block">
+<msub><mover><mi>p</mi><mo>&RightVector;</mo></mover><mn>11</mn></msub>
+<mo>+</mo>
+<msub><mi>k</mi><mn>1</mn></msub>
+<mo>(</mo>
+<msub><mover><mi>p</mi><mo>&RightVector;</mo></mover><mn>12</mn></msub>
+<mo>&minus;</mo>
+<msub><mover><mi>p</mi><mo>&RightVector;</mo></mover><mn>11</mn></msub>
+<mo>)</mo>
+<mo>=</mo>
+<msub><mover><mi>p</mi><mo>&RightVector;</mo></mover><mn>21</mn></msub>
+<mo>+</mo>
+<msub><mi>k</mi><mn>2</mn></msub>
+<mo>(</mo>
+<msub><mover><mi>p</mi><mo>&RightVector;</mo></mover><mn>22</mn></msub>
+<mo>&minus;</mo>
+<msub><mover><mi>p</mi><mo>&RightVector;</mo></mover><mn>21</mn></msub>
+<mo>)</mo>
+</math>
+
+<p>The translates into the equivalent system of two linear equations in two variables <math><msub><mi>k</mi><mn>1</mn></msub></math> and <math><msub><mi>k</mi><mn>2</mn></msub></math>:</p>
+
+<math display="block">
+<msub><mi>x</mi><mn>11</mn></msub>
+<mo>+</mo>
+<msub><mi>k</mi><mn>1</mn></msub>
+<mo>(</mo>
+<msub><mi>x</mi><mn>12</mn></msub>
+<mo>&minus;</mo>
+<msub><mi>x</mi><mn>11</mn></msub>
+<mo>)</mo>
+<mo>=</mo>
+<msub><mi>x</mi><mn>21</mn></msub>
+<mo>+</mo>
+<msub><mi>k</mi><mn>2</mn></msub>
+<mo>(</mo>
+<msub><mi>x</mi><mn>22</mn></msub>
+<mo>&minus;</mo>
+<msub><mi>x</mi><mn>21</mn></msub>
+<mo>)</mo>
+</math>
+
+<math display="block">
+<msub><mi>y</mi><mn>11</mn></msub>
+<mo>+</mo>
+<msub><mi>k</mi><mn>1</mn></msub>
+<mo>(</mo>
+<msub><mi>y</mi><mn>12</mn></msub>
+<mo>&minus;</mo>
+<msub><mi>y</mi><mn>11</mn></msub>
+<mo>)</mo>
+<mo>=</mo>
+<msub><mi>y</mi><mn>21</mn></msub>
+<mo>+</mo>
+<msub><mi>k</mi><mn>2</mn></msub>
+<mo>(</mo>
+<msub><mi>y</mi><mn>22</mn></msub>
+<mo>&minus;</mo>
+<msub><mi>y</mi><mn>21</mn></msub>
+<mo>)</mo>
+</math>
+
+<p>Now we separate variables from constants:</p>
+
+<math display="block">
+<msub><mi>k</mi><mn>1</mn></msub>
+<mo>(</mo>
+<msub><mi>x</mi><mn>12</mn></msub>
+<mo>&minus;</mo>
+<msub><mi>x</mi><mn>11</mn></msub>
+<mo>)</mo>
+<mo>&minus;</mo>
+<msub><mi>k</mi><mn>2</mn></msub>
+<mo>(</mo>
+<msub><mi>x</mi><mn>22</mn></msub>
+<mo>&minus;</mo>
+<msub><mi>x</mi><mn>21</mn></msub>
+<mo>)</mo>
+<mo>=</mo>
+<msub><mi>x</mi><mn>21</mn></msub>
+<mo>&minus;</mo>
+<msub><mi>x</mi><mn>11</mn></msub>
+</math>
+
+<math display="block">
+<msub><mi>k</mi><mn>1</mn></msub>
+<mo>(</mo>
+<msub><mi>y</mi><mn>12</mn></msub>
+<mo>&minus;</mo>
+<msub><mi>y</mi><mn>11</mn></msub>
+<mo>)</mo>
+<mo>&minus;</mo>
+<msub><mi>k</mi><mn>2</mn></msub>
+<mo>(</mo>
+<msub><mi>y</mi><mn>22</mn></msub>
+<mo>&minus;</mo>
+<msub><mi>y</mi><mn>21</mn></msub>
+<mo>)</mo>
+<mo>=</mo>
+<msub><mi>y</mi><mn>21</mn></msub>
+<mo>&minus;</mo>
+<msub><mi>y</mi><mn>11</mn></msub>
+</math>
+
+<p>To make that more manageable, we subsitute</p>
+
+<math display="block">
+<mi>A</mi><mo>=</mo><msub><mi>x</mi><mn>12</mn></msub><mo>&minus;</mo><msub><mi>x</mi><mn>11</mn></msub>
+</math>
+
+<math display="block">
+<mi>B</mi><mo>=</mo><msub><mi>x</mi><mn>22</mn></msub><mo>&minus;</mo><msub><mi>x</mi><mn>21</mn></msub>
+</math>
+
+<math display="block">
+<mi>C</mi><mo>=</mo><msub><mi>y</mi><mn>12</mn></msub><mo>&minus;</mo><msub><mi>y</mi><mn>11</mn></msub>
+</math>
+
+<math display="block">
+<mi>D</mi><mo>=</mo><msub><mi>y</mi><mn>22</mn></msub><mo>&minus;</mo><msub><mi>y</mi><mn>21</mn></msub>
+</math>
+
+<math display="block">
+<mi>E</mi><mo>=</mo><msub><mi>x</mi><mn>21</mn></msub><mo>&minus;</mo><msub><mi>x</mi><mn>11</mn></msub>
+</math>
+
+<math display="block">
+<mi>F</mi><mo>=</mo><msub><mi>y</mi><mn>21</mn></msub><mo>&minus;</mo><msub><mi>y</mi><mn>11</mn></msub>
+</math>
+
+<p>and get</p>
+
+<math display="block">
+<msub><mi>k</mi><mn>1</mn></msub>
+<mi>A</mi>
+<mo>&minus;</mo>
+<msub><mi>k</mi><mn>2</mn></msub>
+<mi>B</mi>
+<mo>=</mo>
+<mi>E</mi></math>
+
+<math display="block">
+<msub><mi>k</mi><mn>1</mn></msub>
+<mi>C</mi>
+<mo>&minus;</mo>
+<msub><mi>k</mi><mn>2</mn></msub>
+<mi>D</mi>
+<mo>=</mo>
+<mi>F</mi></math>
+
+<p>This can be written in matrix form:</p>
+
+<math display="block">
+<mo>[</mo><mtable>
+<mtr><mtd><mi>A</mi></mtd><mtd><mi>&minus;B</mi></mtd></mtr>
+<mtr><mtd><mi>C</mi></mtd><mtd><mi>&minus;D</mi></mtd></mtr>
+</mtable><mo>]</mo>
+<mo></mo>
+<mo>[</mo><mtable>
+<mtr><mtd><msub><mi>k</mi><mn>1</mn></msub></mtd></mtr>
+<mtr><mtd><msub><mi>k</mi><mn>2</mn></msub></mtd></mtr>
+</mtable><mo>]</mo>
+<mo>=</mo>
+<mo>[</mo><mtable>
+<mtr><mtd><mi>E</mi></mtd></mtr>
+<mtr><mtd><mi>F</mi></mtd></mtr>
+</mtable><mo>]</mo>
+</math>
+
+<p>Then we use <a href="https://en.wikipedia.org/wiki/Cramer%27s_rule">Cramer's rule</a>. With <math><mi>M</mi></math> as the coefficient matrix, we calculate the determinants</p>
+
+<math display="block">
+<mo rspace="0">det</mo><mo>(</mo><mi>M</mi><mo>)</mo>
+<mo>=</mo>
+<mo>|</mo><mi>M</mi><mo>|</mo>
+<mo>=</mo>
+<mi>A</mi><mo>(</mo><mi>&minus;D</mi><mo>)</mo>
+<mo>&minus;</mo>
+<mi>C</mi><mo>(</mo><mi>&minus;B</mi><mo>)</mo>
+<mo>=</mo>
+<mi>B</mi><mi>C</mi><mo>&minus;</mo><mi>A</mi><mi>D</mi>
+</math>
+
+<p>If the value of this determinant is zero, then the equation system has no solution. Geometrically that means that the lines are parallel and distinct, they have no point in common.</p>
+
+<math display="block">
+<mrow><mo rspace="0">det</mo><mo>(</mo><msub><mi>M</mi><mn>1</mn></msub><mo>)</mo></mrow>
+<mo>=</mo>
+<mo>|</mo><msub><mi>M</mi><mn>1</mn></msub><mo>|</mo>
+<mo>=</mo>
+<mo stretchy="true">|</mo><mtable>
+	<mtr><mtd><mi>E</mi></mtd><mtd><mi>&minus;B</mi></mtd></mtr>
+	<mtr><mtd><mi>F</mi></mtd><mtd><mi>&minus;D</mi></mtd></mtr>
+</mtable><mo stretchy="true">|</mo>
+<mo>=</mo>
+<mrow><mi>E</mi><mo>(</mo><mi>&minus;D</mi><mo>)</mo>
+<mo>&minus;</mo>
+<mi>F</mi><mo>(</mo><mi>&minus;B</mi><mo>)</mo></mrow>
+<mo>=</mo>
+<mrow><mi>B</mi><mi>F</mi><mo>&minus;</mo><mi>E</mi><mi>D</mi></mrow>
+</math>
+
+<math display="block">
+<mrow><mo rspace="0">det</mo><mo>(</mo><msub><mi>M</mi><mn>2</mn></msub><mo>)</mo></mrow>
+<mo>=</mo>
+<mo>|</mo><msub><mi>M</mi><mn>2</mn></msub><mo>|</mo>
+<mo>=</mo>
+<mo stretchy="true">|</mo><mtable>
+	<mtr><mtd><mi>A</mi></mtd><mtd><mi>E</mi></mtd></mtr>
+	<mtr><mtd><mi>C</mi></mtd><mtd><mi>F</mi></mtd></mtr>
+</mtable><mo stretchy="true">|</mo>
+<mo>=</mo>
+<mrow><mi>A</mi><<mi>F</mi><mo>&minus;</mo><mi>C</mi><mi>E</mi></mrow>
+</math>
+
+<p>Then</p>
+
+<math display="block">
+<msub><mi>k</mi><mn>1</mn></msub><mo>=</mo>
+<mfrac>
+<mrow><mo>|</mo><msub><mi>M</mi><mn>1</mn></msub><mo>|</mo></mrow>
+<mrow><mo>|</mo><mi>M</mi><mo>|</mo></mrow>
+</mfrac>
+<mo>=</mo>
+<mfrac>
+<mrow><mi>B</mi><mi>F</mi><mo>&minus;</mo><mi>E</mi><mi>D</mi></mrow>
+<mrow><mi>B</mi><mi>C</mi><mo>&minus;</mo><mi>A</mi><mi>D</mi></mrow>
+</mfrac>
+</math>
+
+<math display="block">
+<msub><mi>k</mi><mn>2</mn></msub><mo>=</mo>
+<mfrac>
+<mrow><mo>|</mo><msub><mi>M</mi><mn>2</mn></msub><mo>|</mo></mrow>
+<mrow><mo>|</mo><mi>M</mi><mo>|</mo></mrow>
+</mfrac>
+<mo>=</mo>
+<mfrac>
+<mrow><mi>A</mi><<mi>F</mi><mo>&minus;</mo><mi>C</mi><mi>E</mi></mrow>
+<mrow><mi>B</mi><mi>C</mi><mo>&minus;</mo><mi>A</mi><mi>D</mi></mrow>
+</mfrac>
+</math>
+
+<p>Resubstitution gives</p>
+
+<math display="block">
+<msub><mi>k</mi><mn>1</mn></msub>
+<mo>=</mo>
+<mfrac><mrow>
+	<mo stretchy="false">(</mo><msub><mi>x</mi><mn>22</mn></msub><mo>&minus;</mo><msub><mi>x</mi><mn>21</mn></msub><mo stretchy="false">)</mo>
+	<mo stretchy="false">(</mo><msub><mi>y</mi><mn>21</mn></msub><mo>&minus;</mo><msub><mi>y</mi><mn>11</mn></msub><mo stretchy="false">)</mo>
+	<mo>&minus;</mo>
+	<mo stretchy="false">(</mo><msub><mi>x</mi><mn>21</mn></msub><mo>&minus;</mo><msub><mi>x</mi><mn>11</mn></msub><mo stretchy="false">)</mo>
+	<mo stretchy="false">(</mo><msub><mi>y</mi><mn>22</mn></msub><mo>&minus;</mo><msub><mi>y</mi><mn>21</mn></msub><mo stretchy="false">)</mo>
+</mrow><mrow>
+	<mo stretchy="false">(</mo><msub><mi>x</mi><mn>22</mn></msub><mo>&minus;</mo><msub><mi>x</mi><mn>21</mn></msub><mo stretchy="false">)</mo>
+	<mo stretchy="false">(</mo><msub><mi>y</mi><mn>12</mn></msub><mo>&minus;</mo><msub><mi>y</mi><mn>11</mn></msub><mo stretchy="false">)</mo>
+	<mo>&minus;</mo>
+	<mo stretchy="false">(</mo><msub><mi>x</mi><mn>12</mn></msub><mo>&minus;</mo><msub><mi>x</mi><mn>11</mn></msub><mo stretchy="false">)</mo>
+	<mo stretchy="false">(</mo><msub><mi>y</mi><mn>22</mn></msub><mo>&minus;</mo><msub><mi>y</mi><mn>21</mn></msub><mo stretchy="false">)</mo>
+</mrow></mfrac>
+</math>
+
+<math display="block">
+<msub><mi>k</mi><mn>2</mn></msub>
+<mo>=</mo>
+<mfrac><mrow>
+	<mo stretchy="false">(</mo><msub><mi>x</mi><mn>12</mn></msub><mo>&minus;</mo><msub><mi>x</mi><mn>11</mn></msub><mo stretchy="false">)</mo>
+	<mo stretchy="false">(</mo><msub><mi>y</mi><mn>21</mn></msub><mo>&minus;</mo><msub><mi>y</mi><mn>11</mn></msub><mo stretchy="false">)</mo>
+	<mo>&minus;</mo>
+	<mo stretchy="false">(</mo><msub><mi>y</mi><mn>12</mn></msub><mo>&minus;</mo><msub><mi>y</mi><mn>11</mn></msub><mi>)</mi>
+	<mo stretchy="false">(</mo><msub><mi>x</mi><mn>21</mn></msub><mo>&minus;</mo><msub><mi>x</mi><mn>11</mn></msub><mo stretchy="false">)</mo>
+</mrow><mrow>
+	<mo stretchy="false">(</mo><msub><mi>x</mi><mn>22</mn></msub><mo>&minus;</mo><msub><mi>x</mi><mn>21</mn></msub><mo stretchy="false">)</mo>
+	<mo stretchy="false">(</mo><msub><mi>y</mi><mn>12</mn></msub><mo>&minus;</mo><msub><mi>y</mi><mn>11</mn></msub><mo stretchy="false">)</mo>
+	<mo>&minus;</mo>
+	<mo stretchy="false">(</mo><msub><mi>x</mi><mn>12</mn></msub><mo>&minus;</mo><msub><mi>x</mi><mn>11</mn></msub><mo stretchy="false">)</mo>
+	<mo stretchy="false">(</mo><msub><mi>y</mi><mn>22</mn></msub><mo>&minus;</mo><msub><mi>y</mi><mn>21</mn></msub><mo stretchy="false">)</mo>
+</mrow></mfrac>
+</math>
+
+<p>We can now check the value of <math><mi>k</mi></math>. If <math><mn>0</mn><mo>&le;</mo><mi>k</mi><mo>&le;</mo><mn>1</mn></math>, then the intersection lies on the line segment. If <math><mi>k</mi></math> is outside of that range, the intersection point lies on the line outside of that segment.</p>
+
+<script>
+const x11 = 1;
+const y11 = 1;
+const x12 = 4;
+const y12 = 4;
+const x21 = 1;
+const y21 = 4;
+const x22 = 4;
+const y22 = 1;
+
+function intersect( points, extendLines = false ) {
+	// Calculates the intersection point coordinates of two line segments.
+	// points { [ number, 8 ] } : The x and y coordinates of start and end points of two line segments.
+	// extendLines { bool } : If true, the intersection point may be outside the line segments.
+	// returns { [ number, 2 ] | undefined } : The x and y coordinates of the intersection point or undefined if the lines are parallel or if the point is not within both line segments.
+	const a = points[ 2 ] - points[ 0 ] ;
+	const b = points[ 6 ] - points[ 4 ] ;
+	const c = points[ 3 ] - points[ 1 ] ;
+	const d = points[ 7 ] - points[ 5 ] ;
+	const e = points[ 4 ] - points[ 0 ] ;
+	const f = points[ 5 ] - points[ 1 ] ;
+	const denom = b * c - a * d ;
+	// exit if lines are parallel
+	if ( -margin <= denom <= +margin ) return ;
+	const k1 = ( b * f - e * d ) / denom ;
+	const k2 = ( a * f - c * e ) / denom ;
+	if ( extendLines || ( k1 >= 0 && k1 <= 1 && k2 >= 0 && k2 <= 1 )) return [ points[ 0 ] + k1 * a , points[ 1 ] + k1 * c ] ;
+	}
+const result = intersect( [ 1, 1, 4, 4, 1, 4, 4, 1 ] );
+console.log( result );
+</script>
+
+
+</body></html>
+

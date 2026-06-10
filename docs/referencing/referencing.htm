@@ -1,0 +1,35 @@
+﻿<!DOCTYPE html><html lang="en"><head>
+
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="author" content="USP" />
+<meta name="creation-date" content="2026-05-14" />
+<meta name="editor" content="USP" />
+<meta name="change-date" content="2026-05-14" />
+<meta name="version" content="1" />
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" sizes="all" />
+<link rel="stylesheet" href="/math/styles.css" />
+<link rel="stylesheet" href="/svg-gems/styles.css" />
+
+<title>Referencing Variables</title>
+
+</head><body>
+
+<h1>Referencing Variables</h1>
+
+<p>If an SVG attribute accepts a value type that CSS variables can represent, such as lenght, color, number or percentage, we can use the CSS var() and calc() functions as an attribute value:</p>
+
+<pre>
+&lt;svg id="svgRoot" width="300" height="300" viewBox="-150 -150 300 300" 
+	style="border:1px solid silver ; --posY:30px" &gt;
+&lt;style&gt;
+	:root { --posX : -30px }
+	&lt;/style&gt;
+&lt;circle cx="var(--posX)" cy="var(--posY)" r="120" fill="none" stroke="black" /&gt;
+&lt;/svg&gt;
+</pre>
+
+<iframe src="study-01.htm" frameborder="0" width="320" height="320" ></iframe>
+
+</body></html>
+

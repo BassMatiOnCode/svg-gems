@@ -1,0 +1,418 @@
+﻿<!DOCTYPE html><html lang="en"><head>
+
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="author" content="USP" />
+<meta name="creation-date" content="2026-05-14" />
+<meta name="editor" content="USP" />
+<meta name="change-date" content="2026-05-14" />
+<meta name="version" content="1" />
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" sizes="all" />
+<link rel="stylesheet" href="/math/styles.css" />
+<link rel="stylesheet" href="/inc/webcat/numbered-equation/numbered-equation-2.css" />
+<link rel="stylesheet" href="/svg-gems/styles.css" />
+<script type="module" src="/inc/webcat/numbered-equation/numbered-equation-2.js"></script>
+<style>
+	input[ type="number" ] { 
+		field-sizing : content ;
+		min-width : 1ch ;
+		max-width : 100% ;
+		border-style : none ;
+		outline : none ;
+		font-family : monospace ;
+		font-size : 120% ;
+		}
+	pre { tab-size : 15px }
+	hi { color : darkorange }
+	cc { color : green }
+	</style>
+
+<title>Gridlines Correction</title>
+
+</head><body>
+
+<h1>Gridlines Correction</h1>
+
+<h2 cbc>Intersection of Lines</h2><div>
+
+<p>Let there be two lines,</p>
+
+<math display="block">
+<msub><mi>L</mi><mn>1</mn></msub>
+<mo>=</mo><mrow class="overlinebox"><msub><mi>P</mi><mn>11</mn></msub><msub><mi>P</mi><mn>12</mn></msub></mrow>
+<mo>=</mo><mo>(</mo><msub><mi>x</mi><mn>11</mn></msub><mo>,</mo><msub><mi>y</mi><mn>11</mn></msub><mo>,</mo><msub><mi>x</mi><mn>12</mn></msub><mo>,</mo><msub><mi>y</mi><mn>12</mn></msub><mo>)</mo>
+<mo>=</mo><msub><mover><mi>a</mi><mo>&RightVector;</mo></mover><mn>1</mn></msub><mo>+</mo><msub><mi>k</mi><mn>1</mn></msub><msub><mover><mi>b</mi><mo>&RightVector;</mo></mover><mn>1</mn></msub>
+</math>
+
+<math display="block">
+<msub><mi>L</mi><mn>2</mn></msub>
+<mo>=</mo><mrow class="overlinebox"><msub><mi>P</mi><mn>21</mn></msub><msub><mi>P</mi><mn>22</mn></msub></mrow>
+<mo>=</mo><mo>(</mo><msub><mi>x</mi><mn>21</mn></msub><mo>,</mo><msub><mi>y</mi><mn>21</mn></msub><mo>,</mo><msub><mi>x</mi><mn>22</mn></msub><mo>,</mo><msub><mi>y</mi><mn>22</mn></msub><mo>)</mo>
+<mo>=</mo><msub><mover><mi>a</mi><mo>&RightVector;</mo></mover><mn>2</mn></msub><mo>+</mo><msub><mi>k</mi><mn>2</mn></msub><msub><mover><mi>b</mi><mo>&RightVector;</mo></mover><mn>2</mn></msub>
+</math>
+
+<p>Step 1: Find the intersection between the lines as the solution of the equation</p>
+
+<math display="block">
+<msub><mover><mi>a</mi><mo>&RightVector;</mo></mover><mn>1</mn></msub><mo>+</mo><msub><mi>k</mi><mn>1</mn></msub><msub><mover><mi>b</mi><mo>&RightVector;</mo></mover><mn>1</mn></msub>
+<mo>=</mo>
+<msub><mover><mi>a</mi><mo>&RightVector;</mo></mover><mn>2</mn></msub><mo>+</mo><msub><mi>k</mi><mn>2</mn></msub><msub><mover><mi>b</mi><mo>&RightVector;</mo></mover><mn>2</mn></msub>
+</math>
+
+<p>This can be expressed with coordinates:</p>
+
+<math display="block">
+<mo>[</mo><mtable>
+	<mtr><mtd><msub><mi>x</mi><mn>11</mn></msub></mtd></mtr>
+	<mtr><mtd><msub><mi>y</mi><mn>11</mn></msub></mtd></mtr>
+</mtable><mo>]</mo>
+<mo>+</mo>
+<msub><mi>k</mi><mn>1</mn></msub>
+<mo>[</mo><mtable>
+	<mtr><mtd><msub><mi>x</mi><mn>12</mn></msub><mo>&minus;</mo><msub><mi>x</mi><mn>11</mn></msub></mtd></mtr>
+	<mtr><mtd><msub><mi>y</mi><mn>12</mn></msub><mo>&minus;</mo><msub><mi>y</mi><mn>11</mn></msub></mtd></mtr>
+</mtable><mo>]</mo>
+<mo>=</mo>
+<mo>[</mo><mtable>
+	<mtr><mtd><msub><mi>x</mi><mn>21</mn></msub></mtd></mtr>
+	<mtr><mtd><msub><mi>y</mi><mn>21</mn></msub></mtd></mtr>
+</mtable><mo>]</mo>
+<mo>+</mo>
+<msub><mi>k</mi><mn>2</mn></msub>
+<mo>[</mo><mtable>
+	<mtr><mtd><msub><mi>x</mi><mn>22</mn></msub><mo>&minus;</mo><msub><mi>x</mi><mn>21</mn></msub></mtd></mtr>
+	<mtr><mtd><msub><mi>y</mi><mn>22</mn></msub><mo>&minus;</mo><msub><mi>y</mi><mn>21</mn></msub></mtd></mtr>
+</mtable><mo>]</mo>
+</math>
+
+<p>Transformed into equations:</p>
+
+<math display="block">
+<msub><mi>x</mi><mn>11</mn></msub>
+<mo>+</mo>
+<msub><mi>k</mi><mn>1</mn></msub><mo>(</mo><msub><mi>x</mi><mn>12</mn></msub><mo>&minus;</mo><msub><mi>x</mi><mn>11</mn></msub><mo>)</mo>
+<mo>=</mo>
+<msub><mi>x</mi><mn>21</mn></msub>
+<mo>+</mo>
+<msub><mi>k</mi><mn>2</mn></msub><mo>(</mo><msub><mi>x</mi><mn>22</mn></msub><mo>&minus;</mo><msub><mi>x</mi><mn>21</mn></msub><mo>)</mo>
+</math>
+
+<math display="block">
+<msub><mi>y</mi><mn>11</mn></msub>
+<mo>+</mo>
+<msub><mi>k</mi><mn>1</mn></msub><mo>(</mo><msub><mi>y</mi><mn>12</mn></msub><mo>&minus;</mo><msub><mi>y</mi><mn>11</mn></msub><mo>)</mo>
+<mo>=</mo>
+<msub><mi>y</mi><mn>21</mn></msub>
+<mo>+</mo>
+<msub><mi>k</mi><mn>2</mn></msub><mo>(</mo><msub><mi>y</mi><mn>22</mn></msub><mo>&minus;</mo><msub><mi>y</mi><mn>21</mn></msub><mo>)</mo>
+</math>
+
+<p>We solve for k1</p>
+
+<math display="block">
+<msub><mi>k</mi><mn>1</mn></msub>
+<mo>=</mo><mfrac>
+<mrow><msub><mi>y</mi><mn>21</mn></msub>
+	<mo>&minus;</mo><msub><mi>y</mi><mn>11</mn></msub>
+	<mo>+</mo><msub><mi>k</mi><mn>2</mn></msub><mo>(</mo><msub><mi>y</mi><mn>22</mn></msub><mo>&minus;</mo><msub><mi>y</mi><mn>21</mn></msub><mo>)</mo>
+</mrow>
+<mrow>
+	<msub><mi>y</mi><mn>12</mn></msub><mo>&minus;</mo><msub><mi>y</mi><mn>11</mn></msub>
+</mrow>
+</mfrac>
+</math>
+
+<math display="block">
+<msub><mi>k</mi><mn>2</mn></msub>
+<mo>=</mo><mfrac>
+<mrow><msub><mi>x</mi><mn>11</mn></msub>
+	<mo>&minus;</mo><msub><mi>x</mi><mn>21</mn></msub>
+	<mo>+</mo><msub><mi>k</mi><mn>1</mn></msub><mo>(</mo><msub><mi>x</mi><mn>12</mn></msub><mo>&minus;</mo><msub><mi>x</mi><mn>11</mn></msub><mo>)</mo>
+</mrow>
+<mrow>
+	<msub><mi>x</mi><mn>22</mn></msub><mo>&minus;</mo><msub><mi>x</mi><mn>21</mn></msub>
+</mrow>
+</mfrac>
+</math>
+
+<math display="block">
+<msub><mi>k</mi><mn>1</mn></msub>
+<mo>=</mo><mfrac>
+<mrow><msub><mi>y</mi><mn>21</mn></msub>
+	<mo>&minus;</mo><msub><mi>y</mi><mn>11</mn></msub>
+	<mo>+</mo>
+		<mfrac><mrow>
+			<msub><mi>x</mi><mn>11</mn></msub>
+			<mo>&minus;</mo><msub><mi>x</mi><mn>21</mn></msub>
+			<mo>+</mo><msub><mi>k</mi><mn>1</mn></msub><mo>(</mo><msub><mi>x</mi><mn>12</mn></msub><mo>&minus;</mo><msub><mi>x</mi><mn>11</mn></msub><mo>)</mo>
+		</mrow><mrow>
+			<msub><mi>x</mi><mn>22</mn></msub><mo>&minus;</mo><msub><mi>x</mi><mn>21</mn></msub>
+		</mrow></mfrac>
+	<mo>(</mo>
+		<msub><mi>y</mi><mn>22</mn></msub><mo>&minus;</mo><msub><mi>y</mi><mn>21</mn></msub>
+	<mo>)</mo>
+</mrow>
+<mrow>
+	<msub><mi>y</mi><mn>12</mn></msub><mo>&minus;</mo><msub><mi>y</mi><mn>11</mn></msub>
+</mrow>
+</mfrac>
+</math>
+
+<math display="block">
+<mo>=</mo><mfrac><mrow>
+	<msub><mi>y</mi><mn>21</mn></msub>
+	<mo>&minus;</mo>
+	<msub><mi>y</mi><mn>11</mn></msub>
+	<mo>+</mo>
+	<mfrac><mrow><mo>(</mo>
+			<msub><mi>x</mi><mn>11</mn></msub>
+			<mo>&minus;</mo>
+			<msub><mi>x</mi><mn>21</mn></msub>
+		<mo>)</mo><mo>(</mo>
+			<msub><mi>y</mi><mn>22</mn></msub>
+			<mo>&minus;</mo>
+			<msub><mi>y</mi><mn>21</mn></msub>
+		<mo>)</mo>
+	</mrow><mrow>
+		<msub><mi>x</mi><mn>22</mn></msub><mo>&minus;</mo><msub><mi>x</mi><mn>21</mn></msub>
+	</mrow></mfrac>
+	<mo>+</mo>
+	<msub><mi>k</mi><mn>1</mn></msub>
+	<mfrac><mrow><mo>(</mo>
+			<msub><mi>x</mi><mn>12</mn></msub>
+			<mo>&minus;</mo>
+			<msub><mi>x</mi><mn>11</mn></msub>
+		<mo>)</mo><mo>(</mo>
+			<msub><mi>y</mi><mn>22</mn></msub>
+			<mo>&minus;</mo>
+			<msub><mi>y</mi><mn>21</mn></msub>
+		<mo>)</mo>
+	</mrow><mrow>
+		<msub><mi>x</mi><mn>22</mn></msub><mo>&minus;</mo><msub><mi>x</mi><mn>21</mn></msub>
+	</mrow></mfrac>
+</mrow>
+<mrow>
+	<msub><mi>y</mi><mn>12</mn></msub><mo>&minus;</mo><msub><mi>y</mi><mn>11</mn></msub>
+</mrow>
+</mfrac>
+</math>
+
+<math display="block">
+<mo>=</mo>
+	<mfrac><mrow>
+		<msub><mi>y</mi><mn>21</mn></msub>
+		<mo>&minus;</mo>
+		<msub><mi>y</mi><mn>11</mn></msub>
+	</mrow><mrow>
+		<msub><mi>y</mi><mn>12</mn></msub>
+		<mo>&minus;</mo>
+		<msub><mi>y</mi><mn>11</mn></msub>
+	</mrow></mfrac>
+	<mo>+</mo>
+	<mfrac><mrow>
+		<mo>(</mo>
+			<msub><mi>x</mi><mn>11</mn></msub>
+			<mo>&minus;</mo>
+			<msub><mi>x</mi><mn>21</mn></msub>
+		<mo>)</mo><mo>(</mo>
+			<msub><mi>y</mi><mn>22</mn></msub>
+			<mo>&minus;</mo>
+			<msub><mi>y</mi><mn>21</mn></msub>
+		<mo>)</mo>	</mrow><mrow><mo>(</mo>
+		<msub><mi>x</mi><mn>22</mn></msub>
+		<mo>&minus;</mo>
+		<msub><mi>x</mi><mn>21</mn></msub>
+		<mo>)</mo><mo>(</mo>
+		<msub><mi>y</mi><mn>12</mn></msub><mo>&minus;</mo><msub><mi>y</mi><mn>11</mn></msub>
+		<mo>)</mo>
+	</mrow></mfrac>
+	<mo>+</mo>
+	<msub><mi>k</mi><mn>1</mn></msub>
+	<mfrac><mrow>
+		<mo>(</mo>
+			<msub><mi>x</mi><mn>12</mn></msub><mo>&minus;</mo><msub><mi>x</mi><mn>11</mn></msub>
+		<mo>)</mo><mo>(</mo>
+			<msub><mi>y</mi><mn>22</mn></msub>
+			<mo>&minus;</mo>
+			<msub><mi>y</mi><mn>21</mn></msub>
+		<mo>)</mo>
+	</mrow><mrow><mo>(</mo>
+			<msub><mi>x</mi><mn>22</mn></msub>
+			<mo>&minus;</mo>
+			<msub><mi>x</mi><mn>21</mn></msub>
+		<mo>)</mo><mo>(</mo>
+			<msub><mi>y</mi><mn>12</mn></msub>
+			<mo>&minus;</mo>
+			<msub><mi>y</mi><mn>11</mn></msub>
+		<mo>)</mo>
+	</mrow></mfrac>
+</math>
+
+<math display="block">
+<msub><mi>k</mi><mn>1</mn></msub><mo>(</mo>
+	<mn>1</mn>
+	<mo>&minus;</mo>
+	<mfrac><mrow><mo>(</mo>
+			<msub><mi>x</mi><mn>12</mn></msub>
+			<mo>&minus;</mo>
+			<msub><mi>x</mi><mn>11</mn></msub>
+		<mo>)</mo><mo>(</mo>
+			<msub><mi>y</mi><mn>22</mn></msub>
+			<mo>&minus;</mo>
+			<msub><mi>y</mi><mn>21</mn></msub>
+		<mo>)</mo></mrow><mrow><mo>(</mo>
+			<msub><mi>x</mi><mn>22</mn></msub>
+			<mo>&minus;</mo>
+			<msub><mi>x</mi><mn>21</mn></msub>
+		<mo>)</mo><mo>(</mo>
+			<msub><mi>y</mi><mn>12</mn></msub>
+			<mo>&minus;</mo>
+			<msub><mi>y</mi><mn>11</mn></msub>
+	<mo>)</mo></mrow></mfrac><mo>)</mo>
+<mo>=</mo>
+<mfrac><mrow><mo>(</mo>
+	<msub><mi>y</mi><mn>21</mn></msub>
+	<mo>&minus;</mo>
+	<msub><mi>y</mi><mn>11</mn></msub>
+	<mo>)</mo><mo>(</mo>
+		<msub><mi>x</mi><mn>22</mn></msub>
+		<mo>&minus;</mo>
+		<msub><mi>x</mi><mn>21</mn></msub>
+	<mo>)</mo>
+	<mo>+</mo>
+		<mo>(</mo>
+			<msub><mi>x</mi><mn>11</mn></msub>
+			<mo>&minus;</mo>
+			<msub><mi>x</mi><mn>21</mn></msub>
+		<mo>)</mo><mo>(</mo>
+			<msub><mi>y</mi><mn>22</mn></msub>
+			<mo>&minus;</mo>
+			<msub><mi>y</mi><mn>21</mn></msub>
+		<mo>)</mo>	</mrow><mrow><mo>(</mo>
+		<msub><mi>x</mi><mn>22</mn></msub>
+		<mo>&minus;</mo>
+		<msub><mi>x</mi><mn>21</mn></msub>
+		<mo>)</mo><mo>(</mo>
+		<msub><mi>y</mi><mn>12</mn></msub><mo>&minus;</mo><msub><mi>y</mi><mn>11</mn></msub>
+		<mo>)</mo>
+	</mrow></mfrac>
+</math>
+
+<math display="block">
+<msub><mi>k</mi><mn>1</mn></msub>
+	<mfrac><mrow><mo>(</mo>
+			<msub><mi>x</mi><mn>22</mn></msub>
+			<mo>&minus;</mo>
+			<msub><mi>x</mi><mn>21</mn></msub>
+		<mo>)</mo><mo>(</mo>
+			<msub><mi>y</mi><mn>12</mn></msub>
+			<mo>&minus;</mo>
+			<msub><mi>y</mi><mn>11</mn></msub>
+		<mo>)</mo>
+		<mo>&minus;</mo>
+		<mo>(</mo>
+			<msub><mi>x</mi><mn>12</mn></msub>
+			<mo>&minus;</mo>
+			<msub><mi>x</mi><mn>11</mn></msub>
+		<mo>)</mo><mo>(</mo>
+			<msub><mi>y</mi><mn>22</mn></msub>
+			<mo>&minus;</mo>
+			<msub><mi>y</mi><mn>21</mn></msub>
+		<mo>)</mo></mrow><mrow><mo>(</mo>
+			<msub><mi>x</mi><mn>22</mn></msub>
+			<mo>&minus;</mo>
+			<msub><mi>x</mi><mn>21</mn></msub>
+		<mo>)</mo><mo>(</mo>
+			<msub><mi>y</mi><mn>12</mn></msub>
+			<mo>&minus;</mo>
+			<msub><mi>y</mi><mn>11</mn></msub>
+	<mo>)</mo></mrow></mfrac>
+<mo>=</mo>
+<mfrac><mrow><mo>(</mo>
+	<msub><mi>y</mi><mn>21</mn></msub>
+	<mo>&minus;</mo>
+	<msub><mi>y</mi><mn>11</mn></msub>
+	<mo>)</mo><mo>(</mo>
+		<msub><mi>x</mi><mn>22</mn></msub>
+		<mo>&minus;</mo>
+		<msub><mi>x</mi><mn>21</mn></msub>
+	<mo>)</mo>
+	<mo>+</mo>
+		<mo>(</mo>
+			<msub><mi>x</mi><mn>11</mn></msub>
+			<mo>&minus;</mo>
+			<msub><mi>x</mi><mn>21</mn></msub>
+		<mo>)</mo><mo>(</mo>
+			<msub><mi>y</mi><mn>22</mn></msub>
+			<mo>&minus;</mo>
+			<msub><mi>y</mi><mn>21</mn></msub>
+		<mo>)</mo>	</mrow><mrow><mo>(</mo>
+		<msub><mi>x</mi><mn>22</mn></msub>
+		<mo>&minus;</mo>
+		<msub><mi>x</mi><mn>21</mn></msub>
+		<mo>)</mo><mo>(</mo>
+		<msub><mi>y</mi><mn>12</mn></msub><mo>&minus;</mo><msub><mi>y</mi><mn>11</mn></msub>
+		<mo>)</mo>
+	</mrow></mfrac>
+</math>
+
+<math display="block">
+<msub><mi>k</mi><mn>1</mn></msub>
+<mo>=</mo>
+<mfrac><mrow><mo>(</mo>
+	<msub><mi>y</mi><mn>21</mn></msub>
+	<mo>&minus;</mo>
+	<msub><mi>y</mi><mn>11</mn></msub>
+	<mo>)</mo><mo>(</mo>
+		<msub><mi>x</mi><mn>22</mn></msub>
+		<mo>&minus;</mo>
+		<msub><mi>x</mi><mn>21</mn></msub>
+	<mo>)</mo>
+	<mo>+</mo>
+	<mo>(</mo>
+		<msub><mi>x</mi><mn>11</mn></msub>
+		<mo>&minus;</mo>
+		<msub><mi>x</mi><mn>21</mn></msub>
+	<mo>)</mo><mo>(</mo>
+		<msub><mi>y</mi><mn>22</mn></msub>
+		<mo>&minus;</mo>
+		<msub><mi>y</mi><mn>21</mn></msub>
+	<mo>)</mo></mrow><mrow><mo>(</mo>		
+			<msub><mi>x</mi><mn>22</mn></msub>
+			<mo>&minus;</mo>
+			<msub><mi>x</mi><mn>21</mn></msub>
+		<mo>)</mo><mo>(</mo>
+			<msub><mi>y</mi><mn>12</mn></msub>
+			<mo>&minus;</mo>
+			<msub><mi>y</mi><mn>11</mn></msub>
+		<mo>)</mo>
+		<mo>&minus;</mo>
+		<mo>(</mo>
+			<msub><mi>x</mi><mn>12</mn></msub>
+			<mo>&minus;</mo>
+			<msub><mi>x</mi><mn>11</mn></msub>
+		<mo>)</mo><mo>(</mo>
+			<msub><mi>y</mi><mn>22</mn></msub>
+			<mo>&minus;</mo>
+			<msub><mi>y</mi><mn>21</mn></msub>
+		<mo>)</mo>	
+	</mrow></mfrac>
+</math>
+
+<ol>
+<li>whether the two (infinite) lines intersect and where</li>
+<li>whether the intersection point lies within the boundaries of the segments</li>
+</ol>
+
+<p>We will make use of vector cross products. This method avoids dividing by zero early on (which happens if the lines are parallel), and handles vertical lines perfectly.</p>
+
+<p>Any point on a line segment can be expressed by a vector <math><mrow class="overlinebox"><mi>O</mi><msub><mi>P</mi><mn>1</mn></msub></mrow><mo>+</mo><mi>k</mi><mo>&sdot;</mo><mrow class="overlinebox"><msub><mi>P</mi><mn>1</mn></msub><msub><mi>P</mi><mn>2</mn></msub></mrow><mo>=</mo><mover><mi>a</mi><mo>&RightVector;</mo></mover><mo>+</mo><mi>k</mi><mover><mi>b</mi><mo>&RightVector;</mo></mover></math> with <math><mi>0</mi><mo>&le;</mo><mi>k</mi><mo>&le;</mo><mn>1</mn></math>.</p>
+
+<p>The intersection point is the solution of </p>
+
+</div><!--h2--Intersection of Lines-->
+
+
+
+</body></html>
+

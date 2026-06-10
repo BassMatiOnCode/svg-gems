@@ -1,0 +1,53 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" sizes="all" />
+
+<title>Study 1: Single transformation matrix for multiple elements</title>
+<meta name="description" content="This study investigates whether multiple SVG elements can be live-transformed from a single source matrix." />
+<meta name="findings" content="They cannot. Option 1: Put elements in a group and apply the transformation to the group element. Options 2: Create a new SVGTransform from a new SVGMatrix, and uptate the correct SVGTransformList entry with that value. Option 3: Create a CSS custom property and use a CSS transform on the elements instead of an SVGTransform. This document implements option 2." />
+
+</head><body>
+
+<svg id="svgRoot" width="300" height="300" viewBox="-150 -150 300 300" style="border:1px solid silver" stroke="black">
+</svg>
+
+<script>
+let line ;
+line = document.createElementNS( svgRoot.namespaceURI, "line" ) ;
+	line.id = "centerline" ;
+	line.setAttribute( "x1" , -100 );
+	line.setAttribute( "x2" , +100 );
+	svgRoot.append( line );
+line = document.createElementNS( svgRoot.namespaceURI, "line" ) ;
+	line.id = "topline" ;
+	line.setAttribute( "x1" , -100 );
+	line.setAttribute( "x2" , +100 );
+	line.setAttribute( "y1" , -100 );
+	line.setAttribute( "y2" , -100 );
+	svgRoot.append( line );
+line = document.createElementNS( svgRoot.namespaceURI, "line" ) ;
+	line.id = "bottomline" ;
+	line.setAttribute( "x1" , -100 );
+	line.setAttribute( "x2" , +100 );
+	line.setAttribute( "y1" , +100 );
+	line.setAttribute( "y2" , +100 );
+	svgRoot.append( line );
+function initializeAngles( ) {
+	// Creates the first transform list entry in the elements with an identity matrix.
+	const transform = svgRoot.createSVGTransformFromMatrix( svgRoot.createSVGMatrix( ) );
+	for ( const e of svgRoot.children ) {
+		e.transform.baseVal.appendItem( transform );	
+		}
+	}
+initializeAngles( );
+function updateAngles( phi ) {
+	// phi is expected to be in degree units.
+	// Replaces the first transform list entry with an updated transform object.
+	const transform = svgRoot.createSVGTransformFromMatrix( svgRoot.createSVGMatrix( ).rotate( phi ) );
+	for ( const e of svgRoot.children ) {
+		e.transform.baseVal[0] = transform ;	
+		}
+	}
+</script>
+</body></html>
